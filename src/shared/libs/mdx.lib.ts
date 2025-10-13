@@ -56,7 +56,7 @@ function extractMetadata(content: string): BlogMetadata {
   }
 
   const metadataString = metadataMatch[1];
-  const metadata: any = {};
+  const metadata: Record<string, unknown> = {};
 
   metadataString.split("\n").forEach((line) => {
     const [key, ...valueParts] = line.split(":");

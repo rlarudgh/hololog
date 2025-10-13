@@ -5,6 +5,12 @@ import { getPostBySlug, getAllPosts } from "@/shared/libs";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { useMDXComponents } from "@/mdx-components";
 
+// MDX 컴포넌트를 별도로 정의
+function MDXRemoteComponent({ source }: { source: string }) {
+  const components = useMDXComponents({});
+  return <MDXRemote source={source} components={components} />;
+}
+
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
@@ -64,7 +70,7 @@ export default async function BlogPostPage({ params }: PageProps) {
           )}
         </header>
 
-        <MDXRemote source={post.content} components={useMDXComponents({})} />
+        <MDXRemoteComponent source={post.content} />
       </article>
     </Container>
   );
