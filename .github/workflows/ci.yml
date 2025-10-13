@@ -31,7 +31,7 @@ jobs:
         run: yarn set version berry
 
       - name: Install dependencies
-        run: yarn install --immutable
+        run: yarn install --immutable --check-cache
 
       - name: Run ESLint
         run: yarn lint
@@ -41,6 +41,8 @@ jobs:
 
       - name: Run tests
         run: yarn test:run
+        env:
+          NODE_ENV: test
 
       - name: Build application
         run: yarn build
@@ -66,7 +68,7 @@ jobs:
         run: yarn set version berry
 
       - name: Install dependencies
-        run: yarn install --immutable
+        run: yarn install --immutable --check-cache
 
       - name: Run tests with coverage
         run: yarn test:coverage
