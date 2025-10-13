@@ -56,5 +56,6 @@
     "eslint-plugin-react-hooks": "^7.0.0",
     "jsdom": "^27.0.0",
     "vitest": "^3.2.4"
-  }
+  },
+  "packageManager": "yarn@4.10.3"
 }
