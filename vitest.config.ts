@@ -45,9 +45,6 @@ export default defineConfig({
     alias: {
       // 💡 1. 파일 경로 alias 유지
       '@': path.resolve(__dirname, './src'),
-
-      // 💡 2. PnP 환경에서 'vite' 패키지를 찾을 수 있도록 실제 경로를 alias로 추가
-      vite: require.resolve('vite'),
     },
   },
 });
