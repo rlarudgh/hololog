@@ -1,0 +1,86 @@
+import fs from "fs";
+import path from "path";
+import { BlogPost, BlogMetadata } from "@/shared/types/blog-type";
+
+const postsDirectory = path.join(process.cwd(), "content/posts");
+
+export function getAllPosts(): BlogPost[] {
+  const fileNames = fs.readdirSync(postsDirectory);
+
+  const posts = fileNames
+    .filter((fileName) => fileName.endsWith(".mdx"))
+    .map((fileName) => {
+      const slug = fileName.replace(/\.mdx$/, "");
+      const fullPath = path.join(postsDirectory, fileName);
+      const fileContents = fs.readFileSync(fullPath, "utf8");
+
+      const metadata = extractMetadata(fileContents);
+
+      return {
+        slug,
+        ...metadata,
+      };
+    });
+
+  return posts.sort((a, b) => (a.date < b.date ? 1 : -1));
+}
+
+export function getPostBySlug(
+  slug: string
+): { metadata: BlogMetadata; content: string } | null {
+  try {
+    const fullPath = path.join(postsDirectory, `${slug}.mdx`);
+    const fileContents = fs.readFileSync(fullPath, "utf8");
+
+    const metadata = extractMetadata(fileContents);
+    const content = fileContents.replace(/---[\s\S]*?---/, "").trim();
+
+    return {
+      metadata,
+      content,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function extractMetadata(content: string): BlogMetadata {
+  const metadataMatch = content.match(/---\n([\s\S]*?)\n---/);
+
+  if (!metadataMatch) {
+    return {
+      title: "Untitled",
+      date: new Date().toISOString().split("T")[0],
+      description: "",
+    };
+  }
+
+  const metadataString = metadataMatch[1];
+  const metadata: any = {};
+
+  metadataString.split("\n").forEach((line) => {
+    const [key, ...valueParts] = line.split(":");
+    if (key && valueParts.length > 0) {
+      let value = valueParts.join(":").trim();
+
+      if (value.startsWith('"') && value.endsWith('"')) {
+        value = value.slice(1, -1);
+      }
+
+      if (
+        key.trim() === "tags" &&
+        value.startsWith("[") &&
+        value.endsWith("]")
+      ) {
+        metadata[key.trim()] = value
+          .slice(1, -1)
+          .split(",")
+          .map((tag) => tag.trim().replace(/"/g, ""));
+      } else {
+        metadata[key.trim()] = value;
+      }
+    }
+  });
+
+  return metadata as BlogMetadata;
+}

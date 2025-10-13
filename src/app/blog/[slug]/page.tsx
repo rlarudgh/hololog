@@ -1,0 +1,71 @@
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+import { Container } from "@/shared/ui";
+import { getPostBySlug, getAllPosts } from "@/shared/libs";
+import { MDXRemote } from "next-mdx-remote/rsc";
+import { useMDXComponents } from "@/mdx-components";
+
+interface PageProps {
+  params: Promise<{ slug: string }>;
+}
+
+export async function generateStaticParams() {
+  const posts = await getAllPosts();
+  return posts.map((post) => ({
+    slug: post.slug,
+  }));
+}
+
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const post = getPostBySlug(slug);
+
+  if (!post) {
+    return {
+      title: "Post Not Found",
+    };
+  }
+
+  return {
+    title: `${post.metadata.title} - My MDX Blog`,
+    description: post.metadata.description,
+  };
+}
+
+export default async function BlogPostPage({ params }: PageProps) {
+  const { slug } = await params;
+  const post = getPostBySlug(slug);
+
+  if (!post) {
+    notFound();
+  }
+
+  return (
+    <Container className="py-12">
+      <article className="max-w-none">
+        <header className="mb-8">
+          <h1 className="text-5xl font-bold mb-4">{post.metadata.title}</h1>
+          <p className="text-gray-500 dark:text-gray-400 mb-4">
+            {post.metadata.date}
+          </p>
+          {post.metadata.tags && post.metadata.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-6">
+              {post.metadata.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm rounded-full"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+        </header>
+
+        <MDXRemote source={post.content} components={useMDXComponents({})} />
+      </article>
+    </Container>
+  );
+}
