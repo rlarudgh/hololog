@@ -82,5 +82,10 @@ function extractMetadata(content: string): BlogMetadata {
     }
   });
 
-  return metadata as BlogMetadata;
+  return {
+    title: (metadata.title as string) || "Untitled",
+    date: (metadata.date as string) || new Date().toISOString().split("T")[0],
+    description: (metadata.description as string) || "",
+    tags: metadata.tags as string[] | undefined,
+  };
 }
