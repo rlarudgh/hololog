@@ -43,6 +43,8 @@ jobs:
         run: yarn test:run
         env:
           NODE_ENV: test
+          CI: true
+        timeout-minutes: 10
 
       - name: Build application
         run: yarn build
