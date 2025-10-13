@@ -26,12 +26,30 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
-          
-      - name: Set Yarn Version
-        run: yarn set version berry
 
+      # Yarn 버전 설정
+      - name: Set Yarn Version
+        run: corepack prepare yarn@stable --activate
+
+      # 캐시 정리 (선택사항 - 문제 해결용)
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
+
+      - name: Cache yarn dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ steps.yarn-cache-dir-path.outputs.dir }}
+            .yarn/cache
+            .yarn/unplugged
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      # 의존성 설치
       - name: Install dependencies
-        run: yarn install --immutable
+        run: yarn install
 
       - name: Run ESLint
         run: yarn lint
@@ -65,12 +83,12 @@ jobs:
         with:
           node-version: '20.x'
           cache: 'yarn'
-          
+
       - name: Set Yarn Version
-        run: yarn set version berry
+        run: corepack prepare yarn@stable --activate
 
       - name: Install dependencies
-        run: yarn install --immutable
+        run: yarn install
 
       - name: Run tests with coverage
         run: yarn test:coverage
