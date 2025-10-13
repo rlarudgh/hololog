@@ -31,7 +31,7 @@ jobs:
         run: yarn set version berry
 
       - name: Install dependencies
-        run: yarn install --immutable --check-cache
+        run: yarn install --immutable
 
       - name: Run ESLint
         run: yarn lint
@@ -70,7 +70,7 @@ jobs:
         run: yarn set version berry
 
       - name: Install dependencies
-        run: yarn install --immutable --check-cache
+        run: yarn install --immutable
 
       - name: Run tests with coverage
         run: yarn test:coverage
