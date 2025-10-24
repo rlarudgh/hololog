@@ -1,5 +1,5 @@
-import Link from "next/link";
-import { BlogPost } from "@/shared/types/blog-type";
+import Link from 'next/link';
+import { BlogPost } from '@/shared/types/blog-type';
 
 interface PostCardProps {
   post: BlogPost;
