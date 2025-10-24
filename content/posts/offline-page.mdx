@@ -1,0 +1,239 @@
+---
+title: '[PWA] Service Worker로 오프라인 페이지 구현하기'
+date: '2025-01-18'
+description: '실제 웹이나 앱 개발 뿐만 아니라 소프트웨어 서비스를 사용하다 보면 네트워크가 끊기는 상황을 마주할 때가 있습니다.'
+tags: ['React', 'Service Worker', 'offline', 'web']
+---
+
+# [PWA] Service Worker로 오프라인 페이지 구현하기
+
+실제 웹이나 앱 개발 뿐만 아니라 소프트웨어 서비스를 사용하다 보면 네트워크가 끊기는 상황을 마주할 때가 있습니다.
+
+이는 API 통신 중 문제가 발생하거나, 웹 페이지를 불러오는 과정에서 문제가 생기는 경우로 나눌 수 있습니다. 대부분 API 네트워크 예외 상황에 대한 처리는 진행하지만, 정작 네트워크가 끊겨 HTML 페이지 자체를 불러오지 못하는 상황에 대한 예외 처리는 간과하는 경우가 많습니다.
+
+![](https://velog.velcdn.com/images/kimkh05/post/250f2583-91e4-4707-bdf6-e4abf243dd1c/image.png)
+
+요즘 5G도 나오고 특히 대한민국 같은 경우 인터넷 환경이 좋아 네트워크 장애가 자주 발생하지는 않지만, 이러한 상황에 대한 대비도 중요하다고 생각합니다. 예외 상황을 꼼꼼히 처리함으로써 사용자 경험을 한층 더 개선할 수 있기 때문입니다.
+
+## 네트워크가 없는 상태에서 보이는 기본 페이지
+
+![](https://velog.velcdn.com/images/kimkh05/post/0ff8e3ea-9467-4eac-b088-b528171b8bcc/image.png)
+위와 같이 기본적으로 제공되는 공룡 게임 화면이 나타납니다. 하지만 이러한 화면은 디자이너의 관점에서 매력적이지 않을 수 있으며, 사용자 경험(UX)을 고려한 커스텀 디자인이 필요할 수 있습니다.
+
+한편, 네트워크 연결이 없는 상태에서 YouTube에 접속하면 아래와 같은 화면이 표시됩니다. 이 화면은 네트워크 연결 상태를 직관적으로 알려주며, 사용자가 인터넷 문제를 쉽게 인지하고 조치할 수 있도록 돕습니다.
+
+![](https://velog.velcdn.com/images/kimkh05/post/22c4a73a-9118-40e0-9055-4c1ce4369715/image.png)
+
+네트워크도 없는데 어떻게 HTML 파일을 불러오는 것일까요?
+
+이것을 알기 위해서는 웹 내 `Service Worker`라는 부분을 알아야 합니다.
+
+---
+
+## Service Worker
+
+![](https://velog.velcdn.com/images/kimkh05/post/61886b11-0745-45ff-9be5-ce304a0f1b02/image.png)
+`Service Worker`는 브라우저와 네트워크 사이의 virtual-proxy 입니다.
+브라우저가 백그라운드에서 실행하는 스크립트로, JS 파일 형태로 되어 있습니다.
+
+### Service Worker의 역할
+
+- 네트워크 요청 관리: 캐싱을 통해 요청을 가로채고, 네트워크에 문제가 있을 때 캐시된 데이터를 반환하거나 적절한 대응을 제공.
+- 오프라인 경험 제공: 네트워크 연결이 끊어져도 사용자에게 최소한의 기능과 콘텐츠 제공 가능.
+- 백그라운드 동기화: 네트워크 상태가 복구되었을 때 자동으로 동기화 작업 수행.
+
+### Service Worker의 특징
+
+- 비동기성 특성: JavaScript의 Promise와 Event기반으로 동작하며, UI Thread와 별도로 실행함.
+- **HTTPS**필요: 보안 상의 이슈로 반드시 Https 환경에서만 동작함.
+
+### Service Worker LifeCycle
+
+![](https://velog.velcdn.com/images/kimkh05/post/5cc6ca39-ace5-4967-982a-8399facd5a42/image.png)
+
+Service Worker는 설치(install), 활성화(activate), 그리고 요청 처리(fetch)라는 3단계의 생명주기를 거칩니다. 각 단계에서 특정 작업을 처리할 수 있습니다.
+
+- 설치(install): 서비스 워커가 설치되는 단계.
+  이 단계에서 필요한 리소스를 캐시에 저장하거나 초기 설정을 할 수 있음.
+
+- 활성화(activate): 서비스 워커가 활성화되는 단계.
+  오래된 캐시를 정리하거나 새로운 리소스를 설정할 수 있음.
+
+- 요청 처리(fetch): 실제로 웹 페이지의 요청을 가로채서 캐시된 데이터를 반환 또는 네트워크 요청을 처리하는 단계
+
+<br />
+<br />
+
+Cache Storage에 HTML 파일이 저장되어 있다면, 브라우저는 이를 이용해 화면을 렌더링합니다.
+
+사용자가 페이지에 접근했을 때, 네트워크 연결이 끊겨 있더라도 Service Worker는 Cache Storage에 저장된 HTML 파일을 반환하여 화면에 표시합니다.
+그러면 이를 코드로 어떻게 구현할까요?
+
+---
+
+## Service Worker 예제코드
+
+React 프로젝트가 세팅이 다 돼있다고 가정하겠습니다.
+(React18, vite, TypeScript)
+
+### Service Worker register
+
+일단 main.tsx에서 service worker register 시도를 해야합니다.
+그러기 위해서 저는 register하는 부분을 util 함수로 분리하여 작업하였습니다.
+`/src/shared/utils/service-worker.ts`
+
+```ts
+export function serviceWorkerLoad() {
+  const SERVICE_WORKER = 'serviceWorker';
+
+  //* 만약 서비스 워커가 navigator에 있다면
+  if (SERVICE_WORKER in navigator) {
+    //* public 폴더에 있는 sw.js 파일로 register 시도
+    window.addEventListener('load', () => {
+      navigator.serviceWorker
+        .register('/sw.js')
+        .then((registration) => {
+          console.log('# service-worker.ts success to register ', registration);
+
+          // * register 되고 추가 actions 작성
+        })
+        .catch((_error) => {
+          // ! Failed to register service-worker
+          console.error('# service-worker.ts failed to register ', _error);
+
+          // ! 추가 에러 바운더리 처리
+        });
+    });
+  }
+}
+```
+
+위 `serviceWorkerLoad()` 함수를
+main.tsx 파일에 `createRoot(document.getElementById("root")!).render()`실행 하기 전에 실행시켜야하므로 위에 작성해줍니다.
+`/src/apps/main.tsx`
+
+```tsx
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { Provider } from '.';
+import { serviceWorkerLoad } from '@/shared';
+
+// 여기에서 service-worker 작업 진행.
+serviceWorkerLoad();
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <Provider />
+  </StrictMode>,
+);
+```
+
+### sw.js 과 offline.html 파일 작성
+
+register 작업이 성공적으로 진행되었다면 `sw.js` 파일과 `offline.html` 파일을 작성해야합니다.
+`/public/sw.js`
+
+```js
+const CACHE_NAME = 'PWA_OFFLINE_REACT_CACHE_V1';
+const OFFLINE_HTML_URL = '/offline.html';
+
+const PRECACHE_ASSETS = [OFFLINE_HTML_URL];
+
+const _self = self;
+
+// "install" 이벤트: 서비스 워커 설치 시 실행
+_self.addEventListener('install', (e) => {
+  console.log('[sw.js - Install] Install event is working!');
+
+  // 캐시를 열고, 미리 정의된 리소스를 추가
+  e.waitUntil(
+    caches
+      .open(CACHE_NAME)
+      .then((_cache) => {
+        console.log('[sw.js - Install] Caching app shell');
+        return _cache.addAll(PRECACHE_ASSETS);
+      })
+      .catch((_err) => {
+        console.error('[sw.js - Install] Failed install', _err);
+      }),
+  );
+});
+
+// "activate" 이벤트: 새로운 서비스 워커 활성화 시 실행
+_self.addEventListener('activate', (e) => {
+  console.log('[sw.js - activate] Activating new service worker...');
+
+  // 기존에 저장된 캐시들 중, 현재 캐시 이름과 다른 것들을 제거
+  e.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((_cacheName) => {
+          if (_cacheName !== CACHE_NAME) {
+            console.log('[sw.js - activate] Remove old cache... ', _cacheName);
+            return caches.delete(_cacheName);
+          }
+        }),
+      ).catch((_err) => {
+        console.error('[sw.js - activate] Failed activate');
+      });
+    }),
+  );
+
+  // 클라이언트들이 즉시 새로운 서비스 워커를 사용하도록 설정
+  return self.clients.claim();
+});
+
+// "fetch" 이벤트: 네트워크 요청 가로채기
+_self.addEventListener('fetch', (e) => {
+  e.respondWith(
+    fetch(e.request).catch(() => {
+      // 네트워크 요청 실패 시 오프라인 페이지 반환
+      if (e.request.mode === 'navigate') {
+        return caches.match(OFFLINE_HTML_URL);
+      }
+    }),
+  );
+});
+```
+
+`/public/offline.html`
+
+```html
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>offline</title>
+  </head>
+  <body>
+    <h1>now status: offline</h1>
+  </body>
+</html>
+```
+
+---
+
+## 테스트
+
+위 코드를 작성한 후 `npm run dev` 명령어로 개발 서버를 실행하면, **Cache Storage**에 HTML파일(`/offline.html`)이 저장된 것을 확인할 수 있습니다.
+
+![](https://velog.velcdn.com/images/kimkh05/post/02070613-5dad-492a-b9d4-6bab7a205d6a/image.png)
+
+이에 네트워크 탭에 들어가 오프라인으로 설정하면 localhost 요청이 network 에러가 뜨면서 offline.html 파일 내용이 보여지는 것을 볼 수 있습니다.
+
+![](https://velog.velcdn.com/images/kimkh05/post/64b1194e-2aad-44b2-b150-4ab172111723/image.png)
+
+---
+
+해당 코드는 아래 깃허브 링크에서 확인해볼 수 있습니다.
+https://github.com/place-content/offline-react
+
+글의 부족한 점이나 잘못된 부분이 있으면 피드백 해주시면 감사하겠습니다!
+
+감사합니다~ 😊
+
+> **참고**
+> https://rudaks.tistory.com/entry/PWA-Caching
+> https://developer.mozilla.org/ko/docs/Web/API/Service_Worker_API
+> https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API/Using_Service_Workers

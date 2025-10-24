@@ -5,24 +5,34 @@ import { BlogPost, BlogMetadata } from "@/shared/types/blog-type";
 const postsDirectory = path.join(process.cwd(), "content/posts");
 
 export function getAllPosts(): BlogPost[] {
-  const fileNames = fs.readdirSync(postsDirectory);
+  try {
+    // 디렉토리가 존재하지 않으면 빈 배열 반환
+    if (!fs.existsSync(postsDirectory)) {
+      return [];
+    }
 
-  const posts = fileNames
-    .filter((fileName) => fileName.endsWith(".mdx"))
-    .map((fileName) => {
-      const slug = fileName.replace(/\.mdx$/, "");
-      const fullPath = path.join(postsDirectory, fileName);
-      const fileContents = fs.readFileSync(fullPath, "utf8");
+    const fileNames = fs.readdirSync(postsDirectory);
 
-      const metadata = extractMetadata(fileContents);
+    const posts = fileNames
+      .filter((fileName) => fileName.endsWith(".mdx"))
+      .map((fileName) => {
+        const slug = fileName.replace(/\.mdx$/, "");
+        const fullPath = path.join(postsDirectory, fileName);
+        const fileContents = fs.readFileSync(fullPath, "utf8");
 
-      return {
-        slug,
-        ...metadata,
-      };
-    });
+        const metadata = extractMetadata(fileContents);
 
-  return posts.sort((a, b) => (a.date < b.date ? 1 : -1));
+        return {
+          slug,
+          ...metadata,
+        };
+      });
+
+    return posts.sort((a, b) => (a.date < b.date ? 1 : -1));
+  } catch (error) {
+    console.warn('Failed to read posts directory:', error);
+    return [];
+  }
 }
 
 export function getPostBySlug(
