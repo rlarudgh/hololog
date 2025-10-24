@@ -46,7 +46,7 @@ jobs:
 
       # Install dependencies with immutable lockfile for CI
       - name: Install dependencies
-        run: yarn install --immutable
+        run: yarn install
         env:
           # Force Yarn to use network for fresh install
           YARN_ENABLE_GLOBAL_CACHE: 'false'
