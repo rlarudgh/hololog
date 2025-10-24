@@ -19,58 +19,85 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Enable Corepack for Yarn Berry support
       - name: Enable Corepack
         run: corepack enable
-        
+
+      # Setup Node.js with Yarn cache
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          # 💡 Yarn Berry의 PnP 캐시를 사용하도록 설정
           cache: 'yarn'
 
+      # Activate Yarn version specified in package.json
       - name: Set Yarn Version
         run: corepack prepare yarn@stable --activate
 
-      # .yarnrc.yml 내용 확인 (디버깅용)
+      # Verify Yarn configuration (debugging)
       - name: Check Yarn config
         run: |
+          echo "=== Yarn version ==="
+          yarn --version
           echo "=== .yarnrc.yml content ==="
           cat .yarnrc.yml || echo ".yarnrc.yml not found"
-          echo "=== Yarn config ==="
-          yarn config
+          echo "=== Current directory structure ==="
+          ls -la
 
-      # 기존 Yarn 캐시 완전 제거
-      - name: Clean Yarn cache
-        run: |
-          rm -rf .yarn/cache .yarn/unplugged .yarn/install-state.gz
-          yarn cache clean --all
-
+      # Install dependencies with immutable lockfile for CI
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --immutable
+        env:
+          # Force Yarn to use network for fresh install
+          YARN_ENABLE_GLOBAL_CACHE: 'false'
 
-      # 설치 후 vite 확인 (디버깅용)
-      - name: Verify vite installation
+      # Verify critical dependencies after installation
+      - name: Verify critical dependencies
         run: |
-          echo "=== Checking vite ==="
-          yarn why vite
-          ls -la node_modules/vite || echo "vite not in node_modules"
+          echo "=== Checking vite installation ==="
+          yarn why vite || echo "vite check failed"
+          echo "=== Checking vitest installation ==="
+          yarn why vitest || echo "vitest check failed"
+          echo "=== Node modules structure ==="
+          ls -la node_modules/ || ls -la .yarn/ || echo "No standard node_modules found"
 
+      # Run linting
       - name: Run ESLint
         run: yarn lint
+        continue-on-error: false
 
+      # Run TypeScript type checking
       - name: Run type check
         run: yarn tsc --noEmit
+        continue-on-error: false
 
+      # Run tests with proper environment variables
       - name: Run tests
         run: yarn test:run
         env:
           NODE_ENV: test
           CI: true
+          # Force color output even in CI
+          FORCE_COLOR: '1'
         timeout-minutes: 10
 
+      # Build application to ensure production build works
       - name: Build application
         run: yarn build
+        env:
+          NODE_ENV: production
+
+      # Upload build artifacts for debugging if needed
+      - name: Upload build artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: |
+            dist/
+            .yarn/
+            yarn.lock
+          retention-days: 7
 
   coverage:
     runs-on: ubuntu-latest
@@ -87,17 +114,29 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
+          cache: 'yarn'
 
       - name: Set Yarn Version
         run: corepack prepare yarn@stable --activate
 
-      - name: Clean Yarn cache
-        run: |
-          rm -rf .yarn/cache .yarn/unplugged .yarn/install-state.gz
-          yarn cache clean --all
-
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --immutable
+        env:
+          YARN_ENABLE_GLOBAL_CACHE: 'false'
 
+      # Run tests with coverage reporting
       - name: Run tests with coverage
         run: yarn test:coverage
+        env:
+          NODE_ENV: test
+          CI: true
+
+      # Upload coverage reports to Codecov or similar service
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          files: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
