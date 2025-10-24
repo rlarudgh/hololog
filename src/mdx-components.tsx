@@ -1,4 +1,5 @@
-import type { MDXComponents } from "mdx/types";
+import type { MDXComponents } from 'mdx/types';
+import { CodeBlock } from '@/shared/ui';
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
@@ -21,16 +22,39 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
         {children}
       </a>
     ),
-    code: ({ children }) => (
-      <code className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono">
-        {children}
-      </code>
-    ),
-    pre: ({ children }) => (
-      <pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto mb-4">
-        {children}
-      </pre>
-    ),
+    code: ({ children, className, ...props }) => {
+      // If it's inline code (no className), render as inline
+      if (!className) {
+        return (
+          <code className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono">
+            {children}
+          </code>
+        );
+      }
+      // If it's a code block (has className), render with syntax highlighting
+      return (
+        <CodeBlock className={className} {...props}>
+          {children}
+        </CodeBlock>
+      );
+    },
+    pre: ({ children }) => {
+      // Extract the code element from pre
+      if (typeof children === 'object' && children && 'props' in children) {
+        const { className, children: code, ...props } = children.props;
+        return (
+          <CodeBlock className={className} {...props}>
+            {code}
+          </CodeBlock>
+        );
+      }
+      // Fallback for simple pre blocks
+      return (
+        <pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto mb-4">
+          {children}
+        </pre>
+      );
+    },
     ul: ({ children }) => (
       <ul className="list-disc list-inside mb-4 space-y-2">{children}</ul>
     ),
