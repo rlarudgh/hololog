@@ -55,3 +55,4 @@ export const renderAsync = async (component: ReactElement) => {
   await waitForLoadingToFinish();
   return result;
 };
+// Test comment
