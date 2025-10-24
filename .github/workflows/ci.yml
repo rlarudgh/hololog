@@ -19,54 +19,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Setup Node.js with version from .nvmrc
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'yarn'
+
       # Enable Corepack for Yarn Berry support
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Node Version Setting
-        run: nvm use
-
-      # Setup Node.js with Yarn cache
-      # PnP cache includes .yarn/cache and .pnp.* files
-      - name: Setup Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
-
       # Activate Yarn version from yarnPath in .yarnrc.yml
       - name: Activate Yarn
-        run: corepack prepare yarn@stable --activate
-
-      # Verify Yarn and PnP setup
-      - name: Verify Yarn configuration
-        run: |
-          echo "=== Yarn version ==="
-          yarn --version
-          echo "=== Node linker mode ==="
-          yarn config get nodeLinker
-          echo "=== PnP mode ==="
-          yarn config get pnpMode
+        run: corepack prepare yarn@4.10.3 --activate
 
       # Install dependencies with immutable lockfile
-      # This ensures reproducible builds in CI
       - name: Install dependencies
         run: yarn install --immutable
         env:
-          # Disable telemetry in CI
           YARN_ENABLE_TELEMETRY: '0'
-
-      # Verify PnP installation
-      - name: Verify PnP installation
-        run: |
-          echo "=== Checking .pnp.cjs ==="
-          ls -lh .pnp.cjs
-          echo "=== Checking .yarn/cache ==="
-          ls -lh .yarn/cache | head -10
-          echo "=== Verifying vite package ==="
-          yarn run node -e "console.log(require.resolve('vite/package.json'))"
-          echo "=== Verifying vitest package ==="
-          yarn run node -e "console.log(require.resolve('vitest/package.json'))"
 
       # Run linting with PnP
       - name: Run ESLint
@@ -112,17 +84,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Enable Corepack
-        run: corepack enable
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version-file: '.nvmrc'
           cache: 'yarn'
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - name: Activate Yarn
-        run: corepack prepare yarn@stable --activate
+        run: corepack prepare yarn@4.10.3 --activate
 
       - name: Install dependencies
         run: yarn install --immutable
