@@ -25,7 +25,7 @@ export function Header() {
             href="/"
             className="text-2xl font-bold hover:text-blue-600 transition-colors text-white"
           >
-            My Blog
+            Hololog
           </Link>
           <div className="flex gap-6">
             {navItems?.map((item) => (

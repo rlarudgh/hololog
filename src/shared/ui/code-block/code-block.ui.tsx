@@ -70,7 +70,7 @@ export function CodeBlock({ children, className }: CodeBlockProps) {
                   </span>
                 )}
                 {line.map((token, key) => (
-                  <span key={key} {...getTokenProps({ token })} />
+                  <span key={key} {...getTokenProps({ token, key })} />
                 ))}
               </div>
             ))}
