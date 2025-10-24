@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom';
 import { cleanup } from '@testing-library/react';
-import { afterEach } from 'vitest';
+import { afterEach, vi } from 'vitest';
+import React from 'react';
 
 // Cleanup after each test case
 afterEach(() => {
@@ -24,8 +25,15 @@ vi.mock('next/navigation', () => ({
 
 // Mock Next.js image
 vi.mock('next/image', () => ({
-  default: ({ src, alt, ...props }: any) => {
-    const React = require('react');
+  default: ({
+    src,
+    alt,
+    ...props
+  }: {
+    [x: string]: any;
+    src: any;
+    alt: any;
+  }) => {
     // eslint-disable-next-line @next/next/no-img-element
     return React.createElement('img', { src, alt, ...props });
   },
@@ -34,7 +42,6 @@ vi.mock('next/image', () => ({
 // Mock MDX Remote
 vi.mock('next-mdx-remote/rsc', () => ({
   MDXRemote: ({ source }: { source: string }) => {
-    const React = require('react');
     return React.createElement('div', { 'data-testid': 'mdx-content' }, source);
   },
 }));
