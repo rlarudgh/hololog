@@ -1,4 +1,4 @@
-# Hololog - MDX Blog Platform
+# Hololog
 
 A modern, performant blog platform built with Next.js 15, TypeScript, and MDX.
 
@@ -13,7 +13,7 @@ A modern, performant blog platform built with Next.js 15, TypeScript, and MDX.
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/rlarudgh/hololog
 cd hololog
 
 # Install dependencies
@@ -33,15 +33,15 @@ src/
 │   ├── blog/              # Blog pages
 │   ├── about/             # About page
 │   └── layout.tsx         # Root layout
-├── entities/              # Business entities 
+├── entities/              # Business entities
 │   └── blog/              # Blog-related entities
-├── features/              # App features 
-├── shared/                # Shared utilities 
+├── features/              # App features
+├── shared/                # Shared utilities
 │   ├── configs/           # Configuration files
 │   ├── libs/              # Utility libraries
 │   ├── types/             # TypeScript types
 │   └── ui/                # Reusable UI components
-└── widgets/               # Complex UI blocks 
+└── widgets/               # Complex UI blocks
     ├── header/            # Header component
     └── footer/            # Footer component
 ```
@@ -68,10 +68,10 @@ Create MDX files in the `content/posts/` directory:
 
 ```markdown
 ---
-title: "Your Post Title"
-date: "2024-01-01"
-description: "Post description"
-tags: ["nextjs", "mdx", "blog"]
+title: 'Your Post Title'
+date: '2024-01-01'
+description: 'Post description'
+tags: ['nextjs', 'mdx', 'blog']
 ---
 
 # Your Content Here
@@ -189,22 +189,3 @@ yarn build
 yarn build
 npx @next/bundle-analyzer
 ```
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests and linting
-5. Submit a pull request
-
-## 📄 License
-
-[Add your license information here]
-
-## 🔗 Links
-
-- [Next.js Documentation](https://nextjs.org/docs)
-- [MDX Documentation](https://mdxjs.com/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [Feature-Sliced Design](https://feature-sliced.design/)
