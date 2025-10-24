@@ -1,11 +1,11 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import { Header } from "@/widgets/header";
-import { Footer } from "@/widgets/footer";
+import type { Metadata } from 'next';
+import './globals.css';
+import { Header } from '@/widgets/header';
+import { Footer } from '@/widgets/footer';
 
 export const metadata: Metadata = {
-  title: "My MDX Blog",
-  description: "A blog built with Next.js, MDX, and FSD architecture",
+  title: 'Hololog',
+  description: 'development blog',
 };
 
 export default function RootLayout({

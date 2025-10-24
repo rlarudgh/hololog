@@ -1,9 +1,9 @@
-import { notFound } from "next/navigation";
-import type { Metadata } from "next";
-import { Container } from "@/shared/ui";
-import { getPostBySlug, getAllPosts } from "@/shared/libs";
-import { MDXRemote } from "next-mdx-remote/rsc";
-import { useMDXComponents } from "@/mdx-components";
+import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
+import { Container } from '@/shared/ui';
+import { getPostBySlug, getAllPosts } from '@/shared/libs';
+import { MDXRemote } from 'next-mdx-remote/rsc';
+import { useMDXComponents } from '@/mdx-components';
 
 // MDX 컴포넌트를 별도로 정의
 function MDXRemoteComponent({ source }: { source: string }) {
@@ -17,7 +17,7 @@ interface PageProps {
 
 export async function generateStaticParams() {
   const posts = await getAllPosts();
-  return posts.map((post) => ({
+  return posts?.map((post) => ({
     slug: post.slug,
   }));
 }
@@ -30,7 +30,7 @@ export async function generateMetadata({
 
   if (!post) {
     return {
-      title: "Post Not Found",
+      title: 'Post Not Found',
     };
   }
 
