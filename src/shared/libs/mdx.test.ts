@@ -21,6 +21,9 @@ describe('MDX Library', () => {
     vi.stubGlobal('process', {
       cwd: () => '/mock/project'
     })
+    
+    // Mock fs.existsSync to return true by default
+    mockFs.existsSync.mockReturnValue(true)
   })
 
   afterEach(() => {
@@ -29,7 +32,15 @@ describe('MDX Library', () => {
 
   describe('getAllPosts', () => {
     it('returns empty array when no MDX files', () => {
+      mockFs.existsSync.mockReturnValue(true)
       mockFs.readdirSync.mockReturnValue(['README.md', 'package.json'] as never[])
+      
+      const posts = getAllPosts()
+      expect(posts).toEqual([])
+    })
+
+    it('returns empty array when directory does not exist', () => {
+      mockFs.existsSync.mockReturnValue(false)
       
       const posts = getAllPosts()
       expect(posts).toEqual([])
@@ -45,6 +56,7 @@ tags: ["test", "blog"]
 
 # Test Content`
 
+      mockFs.existsSync.mockReturnValue(true)
       mockFs.readdirSync.mockReturnValue(['test-post.mdx', 'another-post.mdx'] as never[])
       mockFs.readFileSync.mockReturnValue(mockFileContent)
 
@@ -78,6 +90,7 @@ description: "Newer post"
 
 Content`
 
+      mockFs.existsSync.mockReturnValue(true)
       mockFs.readdirSync.mockReturnValue(['older.mdx', 'newer.mdx'] as never[])
       mockFs.readFileSync
         .mockReturnValueOnce(olderPost)
