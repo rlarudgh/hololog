@@ -24,80 +24,82 @@ jobs:
         run: corepack enable
 
       # Setup Node.js with Yarn cache
+      # PnP cache includes .yarn/cache and .pnp.* files
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
 
-      # Activate Yarn version specified in package.json
-      - name: Set Yarn Version
+      # Activate Yarn version from yarnPath in .yarnrc.yml
+      - name: Activate Yarn
         run: corepack prepare yarn@stable --activate
 
-      # Verify Yarn configuration (debugging)
-      - name: Check Yarn config
+      # Verify Yarn and PnP setup
+      - name: Verify Yarn configuration
         run: |
           echo "=== Yarn version ==="
           yarn --version
-          echo "=== .yarnrc.yml content ==="
-          cat .yarnrc.yml || echo ".yarnrc.yml not found"
-          echo "=== Current directory structure ==="
-          ls -la
+          echo "=== Node linker mode ==="
+          yarn config get nodeLinker
+          echo "=== PnP mode ==="
+          yarn config get pnpMode
 
-      # Install dependencies with immutable lockfile for CI
+      # Install dependencies with immutable lockfile
+      # This ensures reproducible builds in CI
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --immutable
         env:
-          # Force Yarn to use network for fresh install
-          YARN_ENABLE_GLOBAL_CACHE: 'false'
+          # Disable telemetry in CI
+          YARN_ENABLE_TELEMETRY: '0'
 
-      # Verify critical dependencies after installation
-      - name: Verify critical dependencies
+      # Verify PnP installation
+      - name: Verify PnP installation
         run: |
-          echo "=== Checking vite installation ==="
-          yarn why vite || echo "vite check failed"
-          echo "=== Checking vitest installation ==="
-          yarn why vitest || echo "vitest check failed"
-          echo "=== Node modules structure ==="
-          ls -la node_modules/ || ls -la .yarn/ || echo "No standard node_modules found"
+          echo "=== Checking .pnp.cjs ==="
+          ls -lh .pnp.cjs
+          echo "=== Checking .yarn/cache ==="
+          ls -lh .yarn/cache | head -10
+          echo "=== Verifying vite package ==="
+          yarn run node -e "console.log(require.resolve('vite/package.json'))"
+          echo "=== Verifying vitest package ==="
+          yarn run node -e "console.log(require.resolve('vitest/package.json'))"
 
-      # Run linting
+      # Run linting with PnP
       - name: Run ESLint
         run: yarn lint
-        continue-on-error: false
 
       # Run TypeScript type checking
       - name: Run type check
         run: yarn tsc --noEmit
-        continue-on-error: false
 
-      # Run tests with proper environment variables
+      # Run tests with Vitest under PnP
       - name: Run tests
         run: yarn test:run
         env:
           NODE_ENV: test
           CI: true
-          # Force color output even in CI
           FORCE_COLOR: '1'
         timeout-minutes: 10
 
-      # Build application to ensure production build works
+      # Build application
       - name: Build application
         run: yarn build
         env:
           NODE_ENV: production
 
-      # Upload build artifacts for debugging if needed
-      - name: Upload build artifacts
+      # Upload artifacts on failure for debugging
+      - name: Upload debug artifacts
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: build-output
+          name: ci-debug-artifacts
           path: |
-            dist/
-            .yarn/
+            .pnp.cjs
+            .pnp.loader.mjs
+            .yarnrc.yml
             yarn.lock
-          retention-days: 7
+          retention-days: 3
 
   coverage:
     runs-on: ubuntu-latest
@@ -116,27 +118,25 @@ jobs:
           node-version: '20.x'
           cache: 'yarn'
 
-      - name: Set Yarn Version
+      - name: Activate Yarn
         run: corepack prepare yarn@stable --activate
 
       - name: Install dependencies
         run: yarn install --immutable
         env:
-          YARN_ENABLE_GLOBAL_CACHE: 'false'
+          YARN_ENABLE_TELEMETRY: '0'
 
-      # Run tests with coverage reporting
       - name: Run tests with coverage
         run: yarn test:coverage
         env:
           NODE_ENV: test
           CI: true
 
-      # Upload coverage reports to Codecov or similar service
+      # Upload coverage report
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         if: always()
         with:
           files: ./coverage/lcov.info
           flags: unittests
-          name: codecov-umbrella
           fail_ci_if_error: false
