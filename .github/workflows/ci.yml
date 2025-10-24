@@ -23,6 +23,9 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
+      - name: Node Version Setting
+        run: nvm use
+
       # Setup Node.js with Yarn cache
       # PnP cache includes .yarn/cache and .pnp.* files
       - name: Setup Node.js ${{ matrix.node-version }}
