@@ -5,12 +5,11 @@ import { Header } from './header.ui';
 describe('Header Component', () => {
   it('renders site title', () => {
     render(<Header />);
-    expect(screen.getByText(/hololog/i)).toBeInTheDocument();
+    expect(screen.getByText(/kkh.log/i)).toBeInTheDocument();
   });
 
   it('renders navigation links', () => {
     render(<Header />);
-    expect(screen.getByRole('link', { name: /home/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /blog/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /about/i })).toBeInTheDocument();
   });
@@ -23,7 +22,7 @@ describe('Header Component', () => {
 
   it('renders brand link', () => {
     render(<Header />);
-    const brandLink = screen.getByRole('link', { name: /hololog/i });
+    const brandLink = screen.getByRole('link', { name: /kkh.log/i });
     expect(brandLink).toHaveAttribute('href', '/');
   });
 });

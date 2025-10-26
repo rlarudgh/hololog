@@ -18,6 +18,8 @@ describe('Footer Component', () => {
 
   it('renders footer content', () => {
     render(<Footer />);
-    expect(screen.getByText(/built with next.js/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Sharing insights on development and innovation./i),
+    ).toBeInTheDocument();
   });
 });
