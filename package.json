@@ -27,6 +27,7 @@
     "autoprefixer": "^10.4.21",
     "eslint": "^9.37.0",
     "eslint-config-next": "^15.5.4",
+    "gray-matter": "^4.0.3",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.4",
     "next": "^15.5.4",

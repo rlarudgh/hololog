@@ -3,10 +3,6 @@ import { Container } from '@/shared/ui';
 
 const navItems = [
   {
-    href: '/',
-    label: 'Home',
-  },
-  {
     href: '/blog',
     label: 'Blog',
   },
@@ -23,16 +19,16 @@ export function Header() {
         <nav className="flex items-center justify-between">
           <Link
             href="/"
-            className="text-2xl font-bold hover:text-blue-600 transition-colors text-white"
+            className="text-2xl font-bold hover:text-blue-600 transition-colors text-black dark:text-white"
           >
-            Hololog
+            kkh.log
           </Link>
           <div className="flex gap-6">
             {navItems?.map((item) => (
               <Link
                 href={item.href}
                 key={`${item.label}`}
-                className="hover:text-blue-600 transition-colors text-white"
+                className="hover:text-blue-600 transition-colors text-black dark:text-white"
               >
                 {item.label}
               </Link>
