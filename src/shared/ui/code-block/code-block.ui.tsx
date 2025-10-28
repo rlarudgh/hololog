@@ -69,9 +69,14 @@ export function CodeBlock({ children, className }: CodeBlockProps) {
                     {i + 1}
                   </span>
                 )}
-                {line.map((token, key) => (
-                  <span key={key} {...getTokenProps({ token, key })} />
-                ))}
+                {line.map((token, key) => {
+                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                  const { key: _, ...tokenProps } = getTokenProps({
+                    token,
+                    key,
+                  });
+                  return <span key={key} {...tokenProps} />;
+                })}
               </div>
             ))}
           </pre>

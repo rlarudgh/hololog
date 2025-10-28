@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { Container } from '@/shared/ui';
+import { Container, Utterances } from '@/shared/ui';
 import { getPostBySlug, getAllPosts } from '@/shared/libs';
 import { MDXRemote } from 'next-mdx-remote/rsc';
 import { useMDXComponents } from '@/mdx-components';
@@ -71,6 +71,20 @@ export default async function BlogPostPage({ params }: PageProps) {
         </header>
 
         <MDXRemoteComponent source={post.content} />
+
+        {/* 댓글 섹션 */}
+        <section className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
+          <h2 className="text-2xl font-bold mb-6">댓글</h2>
+          <Utterances
+            repo={
+              process.env.NEXT_PUBLIC_UTTERANCES_REPO ||
+              'your-username/your-repo'
+            }
+            theme="preferred-color-scheme"
+            issueTerm="pathname"
+            label="blog-comments"
+          />
+        </section>
       </article>
     </Container>
   );
