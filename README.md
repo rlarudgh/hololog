@@ -1,25 +1,43 @@
 # Hololog
 
-A modern, performant blog platform built with Next.js 15, TypeScript, and MDX.
+A modern, performant blog platform built with Next.js 15, TypeScript, and MDX, following the Feature-Sliced Design (FSD) methodology.
 
-## 🚀 Quick Start
+## ✨ Features
+
+- **Blog with MDX:** Write content using Markdown and JSX.
+- **About Page:** A dedicated page to introduce the author, with dynamic skill and certification display.
+- **Dark Mode:** User-friendly dark mode support.
+- **FSD Architecture:** Organized and scalable project structure.
+- **Automated README:** A script to automatically update the README with the latest post structure.
+
+## 🛠 Tech Stack
+
+- **Framework**: Next.js 15 (App Router)
+- **Language**: TypeScript
+- **Content**: MDX (Markdown + JSX)
+- **Styling**: Tailwind CSS
+- **Testing**: Vitest
+- **Package Manager**: Yarn Berry
+- **Code Quality**: ESLint, Prettier, Husky, Commitlint
+
+## 🚀 Getting Started
 
 ### Prerequisites
 
-- Node.js lts
+- Node.js (lts version recommended)
 - Yarn (Berry)
 
 ### Installation
 
 ```bash
-# Clone the repository
+# 1. Clone the repository
 git clone https://github.com/rlarudgh/hololog
 cd hololog
 
-# Install dependencies
+# 2. Install dependencies
 yarn install
 
-# Start development server
+# 3. Start the development server
 yarn dev
 ```
 
@@ -27,21 +45,24 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
 
 ## 📁 Project Structure
 
+This project follows the Feature-Sliced Design (FSD) methodology:
+
 ```
 src/
-├── app/                    # Next.js App Router
+├── app/                    # Next.js App Router (Routing layer)
 │   ├── blog/              # Blog pages
 │   ├── about/             # About page
 │   └── layout.tsx         # Root layout
-├── entities/              # Business entities
+├── entities/              # Business entities (e.g., User, Post)
+│   ├── user/              # User-related data and types
 │   └── blog/              # Blog-related entities
-├── features/              # App features
-├── shared/                # Shared utilities
+├── features/              # Business logic features
+├── shared/                # Shared utilities and UI components
 │   ├── configs/           # Configuration files
 │   ├── libs/              # Utility libraries
 │   ├── types/             # TypeScript types
-│   └── ui/                # Reusable UI components
-└── widgets/               # Complex UI blocks
+│   └── ui/                # Reusable UI components (Button, Icon, etc.)
+└── widgets/               # Complex UI blocks (e.g., Header, Footer)
     ├── header/            # Header component
     └── footer/            # Footer component
 ```
@@ -49,22 +70,31 @@ src/
 ## 🛠 Available Scripts
 
 ```bash
-# Development
-yarn dev                   # Start development server
-yarn build                # Build for production
-yarn start                # Start production server
+# Start development server
+yarn dev
 
-# Code Quality
-yarn lint                 # Run ESLint
-yarn lint:fix             # Fix ESLint issues
+# Build for production
+yarn build
 
-# Git Hooks
-yarn prepare              # Setup Husky hooks
+# Start production server
+yarn start
+
+# Run linters
+yarn lint
+
+# Run tests
+yarn test
+
+# Run tests with coverage report
+yarn test:coverage
+
+# Update the posts structure in content/README.md
+yarn update-readme
 ```
 
 ## 📝 Writing Blog Posts
 
-Create MDX files in the `content/posts/` directory:
+Create MDX files in the `content/posts/` directory. The structure of this directory is automatically updated in `content/README.md` by running `yarn update-readme`.
 
 ```markdown
 ---
@@ -79,61 +109,30 @@ tags: ['nextjs', 'mdx', 'blog']
 Write your blog post content using Markdown and JSX.
 ```
 
-## 🏗 Architecture
-
-### Feature-Sliced Design (FSD)
-
-This project follows FSD methodology:
-
-- **App**: Application initialization and routing
-- **Widgets**: Independent UI blocks
-- **Features**: Business logic features
-- **Entities**: Business entities
-- **Shared**: Reusable utilities and components
-
-### Tech Stack
-
-- **Framework**: Next.js 15 (App Router)
-- **Language**: TypeScript
-- **Content**: MDX (Markdown + JSX)
-- **Styling**: Tailwind CSS
-- **Package Manager**: Yarn Berry
-- **Code Quality**: ESLint, Prettier, Husky
-
 ## 🔧 Configuration
 
 ### Environment Variables
 
-Copy `.env.example` to `.env.local` and configure:
+Copy `.env.example` to `.env.local` and configure any necessary environment variables.
 
 ```bash
-# Add your environment variables here
+cp .env.example .env
 ```
 
-### Next.js Configuration
+## 🛡 Code Quality
 
-- MDX support enabled
-- TypeScript strict mode
-- Tailwind CSS integration
+This project uses several tools to ensure code quality:
 
-## 📈 Performance
-
-Current build metrics:
-
-- First Load JS: ~102kB
-- Static Generation (SSG) for blog posts
-- Optimized fonts with next/font
+- **Pre-commit Hooks:** Husky and lint-staged are used to run checks before each commit.
+- **Linting:** ESLint for code analysis and style enforcement.
+- **Formatting:** Prettier for consistent code formatting.
+- **Commit Messages:** Commitlint enforces the Conventional Commits specification.
 
 ## 🚀 Deployment
 
 ### Vercel (Recommended)
 
-```bash
-# Deploy to Vercel
-vercel
-
-# Or connect your GitHub repository to Vercel dashboard
-```
+The easiest way to deploy this Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme).
 
 ### Other Platforms
 
@@ -141,51 +140,5 @@ vercel
 # Build for production
 yarn build
 
-# The output will be in `.next/` directory
-```
-
-## 🛡 Code Quality
-
-### Pre-commit Hooks
-
-- ESLint checks
-- Type checking
-- Commit message linting (Conventional Commits)
-
-### Standards
-
-- TypeScript strict mode
-- ESLint configuration
-- Prettier code formatting
-
-## 📚 Development Guidelines
-
-### Adding New Features
-
-1. Follow FSD architecture
-2. Create components in appropriate layers
-3. Add TypeScript types
-4. Write meaningful commit messages
-
-### Blog Post Guidelines
-
-- Use descriptive titles
-- Add relevant tags
-- Include meta description
-- Follow MDX syntax
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-- **Build Errors**: Check TypeScript types and ESLint
-- **MDX Issues**: Verify frontmatter syntax
-- **Styling Issues**: Check Tailwind class names
-
-### Performance Monitoring
-
-```bash
-# Analyze bundle size
-yarn build
-npx @next/bundle-analyzer
+# The output will be in the .next/ directory
 ```
