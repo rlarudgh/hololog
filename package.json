@@ -11,7 +11,8 @@
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest --watch",
-    "prepare": "husky"
+    "prepare": "husky",
+    "update-readme": "node scripts/update-posts-readme.mjs"
   },
   "dependencies": {
     "@commitlint/cli": "^20.1.0",
@@ -37,6 +38,7 @@
     "prism-react-renderer": "^2.4.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-icons": "^5.5.0",
     "supports-color": "^10.2.2",
     "tailwindcss": "^4.1.14",
     "typescript": "^5.9.3",
