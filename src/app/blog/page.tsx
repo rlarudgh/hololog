@@ -1,6 +1,6 @@
 import { Container } from '@/shared/ui';
 import { PostCard } from '@/entities/blog';
-import { getAllPosts } from '@/shared/libs';
+import { getAllPosts } from '@/shared/libs/mdx';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {

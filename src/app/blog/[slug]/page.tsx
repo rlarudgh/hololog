@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { Container, Utterances } from '@/shared/ui';
-import { getPostBySlug, getAllPosts } from '@/shared/libs';
+import { getPostBySlug, getAllPosts } from '@/shared/libs/mdx';
 import { MDXRemote } from 'next-mdx-remote/rsc';
 import { useMDXComponents } from '@/mdx-components';
 
