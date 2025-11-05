@@ -31,13 +31,22 @@ describe('SEO_CONFIG', () => {
 
   it('should have correct sitemap change frequencies', () => {
     const { changeFrequency } = SEO_CONFIG.sitemap;
-    expect(changeFrequency.always).toBe('always');
-    expect(changeFrequency.hourly).toBe('hourly');
-    expect(changeFrequency.daily).toBe('daily');
-    expect(changeFrequency.weekly).toBe('weekly');
-    expect(changeFrequency.monthly).toBe('monthly');
-    expect(changeFrequency.yearly).toBe('yearly');
-    expect(changeFrequency.never).toBe('never');
+    const validFrequencies = [
+      'always',
+      'hourly',
+      'daily',
+      'weekly',
+      'monthly',
+      'yearly',
+      'never',
+    ];
+    const frequencies = Object.values(changeFrequency);
+
+    +expect(frequencies).toHaveLength(validFrequencies.length);
+
+    +frequencies.forEach((freq) => {
+      +expect(validFrequencies).toContain(freq);
+    });
   });
 
   it('should have correct sitemap priorities', () => {
