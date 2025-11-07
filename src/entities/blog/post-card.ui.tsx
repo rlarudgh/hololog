@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import { BlogPost } from '@/shared/types/blog-type';
+import { memo } from 'react';
 
 interface PostCardProps {
   post: BlogPost;
 }
 
-export function PostCard({ post }: PostCardProps) {
+const PostCardComponent = ({ post }: PostCardProps) => {
   return (
     <article className="border border-gray-200 dark:border-gray-700 rounded-lg p-6 hover:shadow-lg transition-shadow">
       <Link href={`/blog/${post.slug}`}>
@@ -33,4 +34,6 @@ export function PostCard({ post }: PostCardProps) {
       )}
     </article>
   );
-}
+};
+
+export const PostCard = memo(PostCardComponent);
