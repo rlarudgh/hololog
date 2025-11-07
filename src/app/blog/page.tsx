@@ -1,26 +1,43 @@
+import { Suspense } from 'react';
 import { Container } from '@/shared/ui';
-import { PostCard } from '@/entities/blog';
 import { getAllPosts } from '@/shared/libs/mdx';
-import type { Metadata } from 'next';
+import { BlogList } from '@/widgets/blog';
+import { BlogPostSkeletonItem } from '@/shared/ui';
 
-export const metadata: Metadata = {
-  title: 'Blog - My MDX Blog',
-  description: 'Read the latest posts about web development, Next.js, and more',
-};
-
+/**
+ * Server Component with Suspense streaming
+ *
+ * Benefits:
+ * - Instant page shell rendering
+ * - Progressive content loading
+ * - Better perceived performance
+ */
 export default function BlogPage() {
-  const posts = getAllPosts();
-
   return (
     <Container className="py-12">
-      <h1 className="text-5xl font-bold mb-8">Blogs</h1>
-      <div className="space-y-8">
-        {posts.length === 0 ? (
-          <p className="text-gray-500">No posts yet. Check back soon!</p>
-        ) : (
-          posts.map((post) => <PostCard key={post.slug} post={post} />)
-        )}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+        <h1 className="text-5xl font-bold">Blogs</h1>
       </div>
+
+      <Suspense
+        fallback={
+          <div className="space-y-8">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <BlogPostSkeletonItem key={i} />
+            ))}
+          </div>
+        }
+      >
+        <BlogListWrapper />
+      </Suspense>
     </Container>
   );
+}
+
+/**
+ * Server Component wrapper for data fetching
+ */
+function BlogListWrapper() {
+  const posts = getAllPosts();
+  return <BlogList initialPosts={posts} />;
 }
