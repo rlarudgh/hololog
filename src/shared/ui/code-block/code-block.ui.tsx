@@ -1,82 +1,7 @@
 'use client';
 
-import dynamic from 'next/dynamic';
 import { useState } from 'react';
-
-// Dynamically import the Highlight component to reduce initial bundle size
-const Highlight = dynamic(
-  () => import('prism-react-renderer').then((mod) => mod.Highlight),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="bg-gray-900 p-4 rounded-lg animate-pulse h-40" />
-    ),
-  },
-);
-
-// Using a simple theme to reduce bundle size
-const simpleTheme = {
-  plain: {
-    color: '#f8f8f2',
-    backgroundColor: '#282a36',
-  },
-  styles: [
-    {
-      types: ['comment', 'prolog', 'doctype', 'cdata'],
-      style: {
-        color: '#6272a4',
-      },
-    },
-    {
-      types: ['punctuation'],
-      style: {
-        color: '#f8f8f2',
-      },
-    },
-    {
-      types: ['property', 'tag', 'constant', 'symbol', 'deleted'],
-      style: {
-        color: '#ff79c6',
-      },
-    },
-    {
-      types: ['boolean', 'number'],
-      style: {
-        color: '#bd93f9',
-      },
-    },
-    {
-      types: ['selector', 'attr-name', 'string', 'char', 'builtin', 'inserted'],
-      style: {
-        color: '#50fa7b',
-      },
-    },
-    {
-      types: ['operator', 'entity', 'url', 'variable'],
-      style: {
-        color: '#f8f8f2',
-      },
-    },
-    {
-      types: ['atrule', 'attr-value', 'function', 'class-name'],
-      style: {
-        color: '#f1fa8c',
-      },
-    },
-    {
-      types: ['keyword'],
-      style: {
-        color: '#ff79c6',
-      },
-    },
-    {
-      types: ['regex', 'important'],
-      style: {
-        color: '#ffb86c',
-      },
-    },
-  ],
-};
+import { Highlight, themes } from 'prism-react-renderer';
 
 interface CodeBlockProps {
   children: string;
@@ -102,68 +27,62 @@ export function CodeBlock({ children, className }: CodeBlockProps) {
     }
   };
 
-  // Use dynamic import for syntax highlighting to reduce initial bundle size
+  // Use syntax highlighting with a simpler theme to reduce bundle size
   return (
     <div className="relative group my-6">
-      {typeof window !== 'undefined' && Highlight ? (
-        <Highlight
-          theme={simpleTheme}
-          code={code}
-          language={
-            language as
-              | 'javascript'
-              | 'typescript'
-              | 'python'
-              | 'css'
-              | 'jsx'
-              | 'tsx'
-              | 'json'
-              | 'bash'
-              | 'text'
-              | ''
-          }
-        >
-          {({
-            className: highlightClassName,
-            style,
-            tokens,
-            getLineProps,
-            getTokenProps,
-          }) => (
-            <pre
-              className={`${highlightClassName} overflow-x-auto p-4 rounded-lg text-sm relative`}
-              style={{
-                ...style,
-                backgroundColor: '#282a36',
-                border: '1px solid #44475a',
-                color: '#f8f8f2',
-              }}
-            >
-              {tokens.map((line, i) => (
-                <div key={i} {...getLineProps({ line })}>
-                  {tokens.length > 5 && (
-                    <span className="select-none mr-4 inline-block w-8 text-right text-gray-400">
-                      {i + 1}
+      <Highlight
+        theme={themes.oneDark}
+        code={code}
+        language={
+          language as
+            | 'javascript'
+            | 'typescript'
+            | 'python'
+            | 'css'
+            | 'jsx'
+            | 'tsx'
+            | 'json'
+            | 'bash'
+            | 'text'
+            | ''
+        }
+      >
+        {({
+          className: highlightClassName,
+          style,
+          tokens,
+          getLineProps,
+          getTokenProps,
+        }) => (
+          <pre
+            className={`${highlightClassName} overflow-x-auto p-4 rounded-lg text-sm relative`}
+            style={{
+              ...style,
+              backgroundColor: '#0a0c10',
+              border: '1px solid #1c2128',
+              color: '#f0f6fc',
+            }}
+          >
+            {tokens.map((line, i) => (
+              <div key={i} {...getLineProps({ line })}>
+                {tokens.length > 5 && (
+                  <span className="select-none mr-4 inline-block w-8 text-right text-gray-400">
+                    {i + 1}
+                  </span>
+                )}
+                {line.map((token, key) => {
+                  const tokenProps = getTokenProps({ token, key });
+                  return (
+                    <span key={key} {...tokenProps}>
+                      {tokenProps.children}
                     </span>
-                  )}
-                  {line.map((token, key) => {
-                    const tokenProps = getTokenProps({
-                      token,
-                      key,
-                    });
-                    return <span key={key} {...tokenProps} />;
-                  })}
-                </div>
-              ))}
-            </pre>
-          )}
-        </Highlight>
-      ) : (
-        // Fallback for SSR and loading state
-        <pre className="bg-gray-900 text-gray-100 overflow-x-auto p-4 rounded-lg text-sm font-mono">
-          <code>{code}</code>
-        </pre>
-      )}
+                  );
+                })}
+              </div>
+            ))}
+          </pre>
+        )}
+      </Highlight>
 
       {/* Copy button */}
       <button
