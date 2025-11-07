@@ -17,7 +17,7 @@ const nextConfig: NextConfig = {
         pathname: '/images/**',
       },
     ],
-    unoptimized: true, // We'll handle image optimization differently
+    unoptimized: false, // We'll handle image optimization differently
   },
 
   // Compression

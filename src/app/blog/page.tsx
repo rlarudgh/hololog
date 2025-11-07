@@ -37,7 +37,9 @@ export default function BlogPage() {
 /**
  * Server Component wrapper for data fetching
  */
-function BlogListWrapper() {
+async function BlogListWrapper() {
   const posts = getAllPosts();
+  await new Promise((resolve) => setTimeout(resolve, 0));
+
   return <BlogList initialPosts={posts} />;
 }

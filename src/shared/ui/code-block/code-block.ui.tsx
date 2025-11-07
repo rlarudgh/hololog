@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import { Highlight, themes } from 'prism-react-renderer';
+import { useState } from 'react';
 
 interface CodeBlockProps {
   children: string;
@@ -12,7 +12,7 @@ export function CodeBlock({ children, className }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
 
   // Extract language from className (e.g., "language-javascript" -> "javascript")
-  const language = className?.replace(/language-/, '') || 'javascript';
+  const language = className?.replace(/language-/, '') || 'text';
 
   // Clean up the code content
   const code = children.replace(/\n$/, '');
@@ -27,7 +27,6 @@ export function CodeBlock({ children, className }: CodeBlockProps) {
     }
   };
 
-  // Use syntax highlighting with a simpler theme to reduce bundle size
   return (
     <div className="relative group my-6">
       <Highlight
@@ -44,7 +43,6 @@ export function CodeBlock({ children, className }: CodeBlockProps) {
             | 'json'
             | 'bash'
             | 'text'
-            | ''
         }
       >
         {({
@@ -61,6 +59,7 @@ export function CodeBlock({ children, className }: CodeBlockProps) {
               backgroundColor: '#0a0c10',
               border: '1px solid #1c2128',
               color: '#f0f6fc',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.3)',
             }}
           >
             {tokens.map((line, i) => (
@@ -71,12 +70,12 @@ export function CodeBlock({ children, className }: CodeBlockProps) {
                   </span>
                 )}
                 {line.map((token, key) => {
-                  const tokenProps = getTokenProps({ token, key });
-                  return (
-                    <span key={key} {...tokenProps}>
-                      {tokenProps.children}
-                    </span>
-                  );
+                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                  const { key: _, ...tokenProps } = getTokenProps({
+                    token,
+                    key,
+                  });
+                  return <span key={key} {...tokenProps} />;
                 })}
               </div>
             ))}
@@ -87,7 +86,7 @@ export function CodeBlock({ children, className }: CodeBlockProps) {
       {/* Copy button */}
       <button
         onClick={handleCopy}
-        className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-xs px-2 py-1 rounded flex items-center gap-1 bg-gray-800 hover:bg-gray-700 text-gray-200"
+        className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-xs px-2 py-1 rounded flex items-center gap-1 bg-gray-700 hover:bg-gray-600 text-gray-100"
         title="Copy code"
       >
         {copied ? (
