@@ -1,11 +1,12 @@
 import { MetadataRoute } from 'next';
 import { getAllPosts } from '@/shared/libs/mdx/mdx.lib';
+import type { BlogPost } from '@/shared/types/blog-type';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const siteUrl = 'https://hololog.vercel.app' as const;
-  const posts = getAllPosts();
+  const posts: BlogPost[] = getAllPosts();
 
-  const postRoutes = posts.map((post) => ({
+  const postRoutes = posts.map((post: BlogPost) => ({
     url: `${siteUrl}/blog/${post.slug}`,
     lastModified: new Date(post.date).toISOString(),
   }));

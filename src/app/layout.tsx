@@ -5,7 +5,7 @@ import { Footer } from '@/widgets/footer';
 
 export const metadata: Metadata = {
   title: 'Hololog',
-  description: 'development blog',
+  description: '개발 했던 일들을 기록하는 곳입니다.',
 };
 
 export default function RootLayout({
