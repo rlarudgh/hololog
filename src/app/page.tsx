@@ -12,7 +12,7 @@ export default function HomePage() {
       <div className="max-w-4xl mx-auto">
         <h1 className="text-5xl font-bold mb-8">Welcome to Hololog</h1>
         <p className="text-lg text-gray-600 dark:text-gray-300 mb-12 max-w-2xl">
-          개발 했던 일들을 기록하는 곳입니다. 최신 기술 동향, 프로젝트 경험,
+          개발했던 일들을 기록하는 곳입니다. 최신 기술 동향, 프로젝트 경험,
           그리고 개발 과정에서 배운 내용을 공유합니다.
         </p>
 

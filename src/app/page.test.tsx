@@ -56,7 +56,7 @@ describe('Home Page', () => {
 
     expect(screen.getByText(/Welcome to Hololog/i)).toBeInTheDocument();
     expect(
-      screen.getByText(/개발 했던 일들을 기록하는 곳입니다/i),
+      screen.getByText(/개발했던 일들을 기록하는 곳입니다/i),
     ).toBeInTheDocument();
   });
 
