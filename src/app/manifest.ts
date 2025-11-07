@@ -6,7 +6,7 @@ export default function manifest(): Manifest {
   return {
     name: 'Hololog',
     short_name: 'Hololog',
-    description: 'development blog',
+    description: '개발했던 일들을 기록하는 곳입니다.',
     start_url: '/',
     display: 'standalone',
     background_color: '#ffffff',
