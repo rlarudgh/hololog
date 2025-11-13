@@ -3,6 +3,7 @@ import Script from 'next/script';
 import './globals.css';
 import { Header } from '@/widgets/header';
 import { Footer } from '@/widgets/footer';
+import { GoogleAdSenseScript } from '@/shared/libs/google-adsense';
 
 export const metadata: Metadata = {
   title: 'Hololog',
@@ -22,12 +23,7 @@ export default function RootLayout({
         <Footer />
 
         {/** Google AdSense */}
-        <Script
-          async
-          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_CLIENT}`}
-          crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
+        <GoogleAdSenseScript />
       </body>
     </html>
   );
