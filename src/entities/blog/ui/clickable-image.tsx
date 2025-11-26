@@ -1,11 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
-import { ImageModal } from './image-modal';
+import React, { useState, lazy, Suspense } from 'react';
+
+const ImageModal = lazy(() =>
+  import('./image-modal').then((module) => ({ default: module.ImageModal })),
+);
 
 interface ClickableImageProps {
   src: string;
-  alt: string;
+  alt?: string;
   className?: string;
   width?: number;
   height?: number;
@@ -13,12 +16,12 @@ interface ClickableImageProps {
 
 export function ClickableImage({
   src,
-  alt,
+  alt = '',
   className = '',
   width,
   height,
-}: ClickableImageProps) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+}: Readonly<ClickableImageProps>) {
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const handleImageClick = () => {
     setIsModalOpen(true);
@@ -45,13 +48,18 @@ export function ClickableImage({
 
   return (
     <>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img {...imageProps} />
-      <ImageModal
-        src={src}
-        alt={alt}
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-      />
+      <Suspense fallback={null}>
+        {isModalOpen && (
+          <ImageModal
+            src={src}
+            alt={alt}
+            isOpen={isModalOpen}
+            onClose={handleCloseModal}
+          />
+        )}
+      </Suspense>
     </>
   );
 }

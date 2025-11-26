@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect } from 'react';
+import React, { type MouseEvent, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
 interface ImageModalProps {
@@ -45,6 +45,7 @@ export function ImageModal({ src, alt, isOpen, onClose }: ImageModalProps) {
       aria-labelledby="modal-title"
     >
       <div className="relative flex items-center justify-center w-full h-full p-8">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={src}
           alt={alt}
@@ -57,7 +58,10 @@ export function ImageModal({ src, alt, isOpen, onClose }: ImageModalProps) {
           }}
         />
         <button
-          onClick={onClose}
+          onClick={(e: MouseEvent<HTMLButtonElement>) => {
+            e.stopPropagation();
+            onClose();
+          }}
           className="absolute top-4 right-4 w-10 h-10 bg-white bg-opacity-90 hover:bg-opacity-100 text-gray-800 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 shadow-lg"
           aria-label="이미지 닫기"
           style={{ zIndex: 10000 }}

@@ -30,11 +30,10 @@ vi.mock('next/image', () => ({
     alt,
     ...props
   }: {
-    [x: string]: any;
-    src: any;
-    alt: any;
+    [key: string]: unknown;
+    src: string;
+    alt: string;
   }) => {
-    // eslint-disable-next-line @next/next/no-img-element
     return React.createElement('img', { src, alt, ...props });
   },
 }));
