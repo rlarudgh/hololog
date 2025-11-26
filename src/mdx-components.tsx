@@ -1,5 +1,6 @@
 import type { MDXComponents } from 'mdx/types';
 import { CodeBlock } from '@/shared/ui';
+import { ClickableImage } from '@/entities/blog';
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
@@ -70,6 +71,15 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       <blockquote className="border-l-4 border-gray-300 pl-4 italic my-4">
         {children}
       </blockquote>
+    ),
+    img: ({ src, alt, className, width, height }) => (
+      <ClickableImage
+        src={src || ''}
+        alt={alt || ''}
+        className={`w-full rounded-lg mb-4 ${className || ''}`}
+        width={width}
+        height={height}
+      />
     ),
     ...components,
   };
