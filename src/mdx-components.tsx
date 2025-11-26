@@ -1,5 +1,12 @@
 import type { MDXComponents } from 'mdx/types';
 import { CodeBlock } from '@/shared/ui';
+import { lazy, Suspense } from 'react';
+
+const ClickableImage = lazy(() =>
+  import('@/entities/blog').then((module) => ({
+    default: module.ClickableImage,
+  })),
+);
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
@@ -70,6 +77,28 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       <blockquote className="border-l-4 border-gray-300 pl-4 italic my-4">
         {children}
       </blockquote>
+    ),
+    img: ({ src, alt, className, width, height }) => (
+      <Suspense
+        fallback={
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={src || ''}
+            alt={alt || ''}
+            className={`w-full rounded-lg mb-4 ${className || ''}`}
+            width={width}
+            height={height}
+          />
+        }
+      >
+        <ClickableImage
+          src={src || ''}
+          alt={alt || ''}
+          className={`w-full rounded-lg mb-4 ${className || ''}`}
+          width={width}
+          height={height}
+        />
+      </Suspense>
     ),
     ...components,
   };

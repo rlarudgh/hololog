@@ -27,8 +27,8 @@ if (startIndex === -1 || endIndex === -1) {
   process.exit(1);
 }
 
-const newReadmeContent = 
-  readmeContent.slice(0, startIndex + startMarker.length) + 
+const newReadmeContent =
+  readmeContent.slice(0, startIndex + startMarker.length) +
   '\n```\n' +
   tree +
   '```\n' +
