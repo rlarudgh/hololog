@@ -7,7 +7,8 @@
 ```
 posts/
 ├── 2024-memoir.mdx
-\└── offline-page.mdx
+├── 2025-memoir.mdx
+└── offline-page.mdx
 ```
 
 <!-- POSTS_STRUCTURE_END -->
