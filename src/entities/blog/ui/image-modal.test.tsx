@@ -121,7 +121,10 @@ describe('ImageModal Component', () => {
 
     const dialog = screen.getByRole('dialog');
     expect(dialog).toHaveAttribute('aria-modal', 'true');
-    expect(dialog).toHaveAttribute('aria-labelledby', 'modal-title');
+    expect(dialog).toHaveAttribute(
+      'aria-label',
+      '이미지 확대 보기: Test image description',
+    );
   });
 
   it('applies correct styles to the image', () => {

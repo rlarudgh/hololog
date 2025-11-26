@@ -42,7 +42,7 @@ export function ImageModal({ src, alt, isOpen, onClose }: ImageModalProps) {
       onClick={onClose}
       role="dialog"
       aria-modal="true"
-      aria-labelledby="modal-title"
+      aria-label={`이미지 확대 보기: ${alt}`}
     >
       <div className="relative flex items-center justify-center w-full h-full p-8">
         {/* eslint-disable-next-line @next/next/no-img-element */}
