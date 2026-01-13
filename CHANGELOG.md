@@ -8,6 +8,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+- **CI/CD**: semantic-release for automated version management and changelog generation
+- **CI/CD**: Release workflow for GitHub Actions
+- **Development**: Storybook for component development and documentation
+- **Documentation**: Component stories for Button, CodeBlock, Container, Footer, Header, and PostCard
+
+### Changed
+
+- **Build**: Migrated from Yarn Berry to pnpm 10.28.0
+- **Dependencies**: Replaced `prism-react-renderer` with `react-syntax-highlighter` for better language support
+- **CI**: Updated CI workflows to use pnpm instead of Yarn
+- **Documentation**: Updated all documentation to reference pnpm commands
+
+### Fixed
+
+- **Syntax Highlighting**: Added support for Dart, Rust, Go, and other programming languages
 - **Security**: MDX content sanitization with `rehype-sanitize` plugin to prevent XSS vulnerabilities
 - **Security**: Environment variable validation for Utterances and Google AdSense
 - **Performance**: React.memo() optimization for HomePostCard component
@@ -30,6 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Testing**: About page test suite with 10 test cases
 
 ### Changed
+
 - **Build**: Updated OpenGraph images format to array type for Next.js 15 compatibility
 - **Build**: Fixed metadata type definitions (removed unused author/modifiedDate fields)
 - **Dependencies**: Updated to Yarn Berry 4.12.0
@@ -37,6 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Documentation**: Updated README.md with comprehensive documentation links
 
 ### Fixed
+
 - **Security**: Fixed potential XSS vulnerability in MDX rendering
 - **Security**: Added null checks for environment variables (AdSense, Utterances)
 - **Build**: Fixed TypeScript errors related to OpenGraph metadata types
@@ -48,6 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2024-01-01
 
 ### Added
+
 - Initial project setup with Next.js 15 and TypeScript
 - Feature-Sliced Design (FSD) architecture
 - MDX-based blog system with syntax highlighting
@@ -57,6 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ESLint, Prettier, Husky, Commitlint configuration
 
 ### Features
+
 - Blog listing page with search functionality
 - Individual blog post pages
 - About page with skills and certifications
@@ -92,4 +112,4 @@ This project uses [Conventional Commits](https://www.conventionalcommits.org/):
 
 ---
 
-**Last Updated:** 2025-01-13
+**Last Updated:** 2026-01-13
