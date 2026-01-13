@@ -33,7 +33,9 @@ export function generatePageMetadata(
     title,
     description,
     openGraph: {
-      ...SEO_CONFIG.openGraph,
+      type: SEO_CONFIG.openGraph.type,
+      locale: SEO_CONFIG.openGraph.locale,
+      siteName: SEO_CONFIG.openGraph.siteName,
       title,
       description,
       url,

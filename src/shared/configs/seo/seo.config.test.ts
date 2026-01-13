@@ -19,7 +19,7 @@ describe('SEO_CONFIG', () => {
   it('should have Open Graph metadata', () => {
     expect(SEO_CONFIG.openGraph).toBeDefined();
     expect(SEO_CONFIG.openGraph.type).toBe('website');
-    expect(SEO_CONFIG.openGraph.locale).toBe('en_US');
+    expect(SEO_CONFIG.openGraph.locale).toBe('ko_KR');
     expect(typeof SEO_CONFIG.openGraph.siteName).toBe('string');
   });
 

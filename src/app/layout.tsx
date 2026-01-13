@@ -4,11 +4,9 @@ import { Header } from '@/widgets/header';
 import { Footer } from '@/widgets/footer';
 import { GoogleAdSenseScript } from '@/shared/libs/google-adsense';
 import { type PropsWithChildren } from 'react';
+import { generateMetadata as createMetadata } from '@/shared/utils/metadata/metadata.util';
 
-export const metadata: Metadata = {
-  title: 'Hololog',
-  description: '개발했던 일들을 기록하는 곳입니다.',
-};
+export const metadata: Metadata = createMetadata();
 
 export default function RootLayout({ children }: Readonly<PropsWithChildren>) {
   return (

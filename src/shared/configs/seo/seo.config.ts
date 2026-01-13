@@ -8,17 +8,40 @@ export const SEO_CONFIG = {
   /**
    * Default metadata
    */
-  defaultTitle: 'Next.js 15 Offline App',
-  defaultDescription:
-    'Progressive Web App with offline support using Service Workers',
+  defaultTitle: 'Hololog - 개발 블로그',
+  defaultDescription: '개발했던 일들을 기록하는 블로그입니다. Next.js, TypeScript, React 등 다양한 기술을 다룹니다.',
+  defaultKeywords: [
+    '개발 블로그',
+    '프로그래밍',
+    'Next.js',
+    'TypeScript',
+    'React',
+    '웹 개발',
+    'frontend',
+    'blog',
+  ],
 
   /**
    * Social media metadata
    */
   openGraph: {
     type: 'website',
-    locale: 'en_US',
-    siteName: 'Next.js 15 Offline App',
+    locale: 'ko_KR',
+    siteName: 'Hololog',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Hololog',
+      },
+    ],
+  },
+
+  twitter: {
+    card: 'summary_large_image',
+    site: '@hololog',
+    creator: '@hololog',
   },
 
   /**

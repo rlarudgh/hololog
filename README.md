@@ -29,6 +29,31 @@ A modern, performant blog platform built with Next.js 15, TypeScript, and MDX, f
 
 ### Installation
 
+#### Automated Setup (Recommended)
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/rlarudgh/hololog
+cd hololog
+
+# 2. Run the automated setup script
+bash scripts/initial-setting.sh
+
+# 3. Start the development server
+yarn dev
+```
+
+The setup script will:
+- ✅ Check Node.js and Yarn versions
+- ✅ Install all dependencies
+- ✅ Configure environment variables
+- ✅ Set up Git hooks (Husky)
+- ✅ Verify your setup
+
+#### Manual Setup
+
+If you prefer manual setup:
+
 ```bash
 # 1. Clone the repository
 git clone https://github.com/rlarudgh/hololog
@@ -37,7 +62,13 @@ cd hololog
 # 2. Install dependencies
 yarn install
 
-# 3. Start the development server
+# 3. Setup environment variables
+cp .env.example .env.local
+
+# 4. Setup Git hooks
+yarn prepare
+
+# 5. Start the development server
 yarn dev
 ```
 
@@ -90,6 +121,10 @@ yarn test:coverage
 
 # Update the posts structure in content/README.md
 yarn update-readme
+
+# Run SEO audit (requires dev server running or provide URL)
+yarn seo:check
+yarn seo:check:prod  # Check production site
 ```
 
 ## 📝 Writing Blog Posts
@@ -127,6 +162,86 @@ This project uses several tools to ensure code quality:
 - **Linting:** ESLint for code analysis and style enforcement.
 - **Formatting:** Prettier for consistent code formatting.
 - **Commit Messages:** Commitlint enforces the Conventional Commits specification.
+
+## 🔍 SEO Optimization
+
+This project includes comprehensive SEO features to improve search engine visibility:
+
+### Built-in SEO Features
+
+- **Enhanced Metadata:**
+  - OpenGraph tags for social media sharing
+  - Twitter Card support
+  - Dynamic keywords meta tags
+  - Proper title and description handling
+
+- **Structured Data (JSON-LD):**
+  - BlogPosting schema for articles
+  - BreadcrumbList for navigation
+  - WebSite schema with search functionality
+  - Organization and Person schemas
+
+- **Technical SEO:**
+  - Dynamic sitemap generation (`/sitemap.xml`)
+  - Robots.txt configuration
+  - Canonical URLs
+  - Proper robots meta tags
+
+### SEO Audit Script
+
+Run automated SEO audits using Lighthouse:
+
+```bash
+# Check development server (must be running)
+yarn seo:check
+
+# Check production site
+yarn seo:check:prod
+
+# Check custom URL
+bash scripts/seo-check.sh https://your-domain.com
+```
+
+The SEO audit script:
+- Runs Lighthouse SEO analysis
+- Generates detailed reports (JSON + HTML)
+- Provides actionable recommendations
+- Scores your SEO implementation
+
+### SEO Checklist
+
+- [ ] Update `NEXT_PUBLIC_BASE_URL` in environment variables
+- [ ] Create OpenGraph image (1200x630px) at `/public/og-image.png`
+- [ ] Add site logo at `/public/logo.png`
+- [ ] Update Twitter handle in `seo.config.ts`
+- [ ] Submit sitemap to Google Search Console
+- [ ] Run SEO audit regularly to track improvements
+
+### Best Practices
+
+1. **Meta Descriptions:** Write unique descriptions (150-160 characters)
+2. **Title Tags:** Keep under 60 characters, include keywords
+3. **Headings:** Use one `<h1>` per page, maintain hierarchy
+4. **Images:** Always use descriptive alt text
+5. **Internal Links:** Create logical site structure
+6. **Content Quality:** Publish original, valuable content regularly
+
+## 📚 Documentation
+
+### Project Documentation
+- **[Product Requirements Document (PRD)](./docs/PRD.md)** - Product vision, requirements, and roadmap
+- **[Technical Skills Reference](./docs/SKILLS.md)** - Technologies, best practices, and learning resources
+- **[Development Plan Template](./docs/PLAN.md)** - Guide for creating feature development plans
+- **[Architecture Decision Records](./docs/DECISIONS.md)** - History of architectural decisions
+
+### Development Documentation
+- **[CLAUDE.md](./CLAUDE.md)** - Development guidelines and coding standards for AI assistants
+- **[FSD Architecture](./docs/development/FSD_ARCHITECTURE.md)** - Feature-Sliced Design methodology and implementation
+- **[Git Flow](./docs/development/GIT_FLOW.md)** - Branching strategy and commit conventions
+- **[Utterances Setup](./docs/UTTERANCES_SETUP.md)** - Comments system configuration
+
+### Content Documentation
+- **[Content README](./content/README.md)** - Blog posts structure and organization (auto-generated)
 
 ## 🚀 Deployment
 

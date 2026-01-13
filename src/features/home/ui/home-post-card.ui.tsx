@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { memo } from 'react';
 import { BlogPost } from '@/shared/types/blog-type';
 import { ROUTES } from '@/shared/configs/routes';
 
@@ -6,11 +7,11 @@ interface HomePostCardProps {
   post: BlogPost;
 }
 
-export function HomePostCard({ post }: HomePostCardProps) {
+function HomePostCardComponent({ post }: HomePostCardProps) {
   return (
     <Link
       href={ROUTES.BLOG_POST(post.slug)}
-      className="block border border-gray-200 dark:border-gray-700 rounded-lg p-6 hover:shadow-md transition-shadow duration-200 bg-white dark:bg-gray-800"
+      className="block border border-gray-200 dark:border-gray-700 rounded-lg p-6 hover:shadow-md transition-shadow duration-200 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
     >
       <div className="flex justify-between items-start">
         <div className="flex-1 min-w-0">
@@ -43,3 +44,5 @@ export function HomePostCard({ post }: HomePostCardProps) {
     </Link>
   );
 }
+
+export const HomePostCard = memo(HomePostCardComponent);

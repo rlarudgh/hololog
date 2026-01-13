@@ -84,7 +84,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
           /* eslint-disable-next-line @next/next/no-img-element */
           <img
             src={src || ''}
-            alt={alt || ''}
+            alt={alt || 'Blog image'}
             className={`w-full rounded-lg mb-4 ${className || ''}`}
             width={width}
             height={height}
@@ -93,7 +93,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       >
         <ClickableImage
           src={src || ''}
-          alt={alt || ''}
+          alt={alt || 'Blog image'}
           className={`w-full rounded-lg mb-4 ${className || ''}`}
           width={width}
           height={height}

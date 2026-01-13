@@ -16,7 +16,7 @@ interface ClickableImageProps {
 
 export function ClickableImage({
   src,
-  alt = '',
+  alt = 'Image',
   className = '',
   width,
   height,

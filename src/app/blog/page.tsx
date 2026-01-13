@@ -39,7 +39,6 @@ export default function BlogPage() {
  */
 async function BlogListWrapper() {
   const posts = getAllPosts();
-  await new Promise((resolve) => setTimeout(resolve, 0));
 
   return <BlogList initialPosts={posts} />;
 }
