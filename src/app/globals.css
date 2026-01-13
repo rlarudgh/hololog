@@ -61,4 +61,8 @@ a {
   pre {
     @apply bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto mb-4;
   }
+
+  .syntax-highlighter-wrapper pre {
+    @apply bg-transparent p-0 m-0;
+  }
 }

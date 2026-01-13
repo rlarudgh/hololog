@@ -1,6 +1,7 @@
 'use client';
 
-import { Highlight, themes } from 'prism-react-renderer';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { useState } from 'react';
 
 interface CodeBlockProps {
@@ -9,7 +10,7 @@ interface CodeBlockProps {
 }
 
 export function CodeBlock({ children, className }: CodeBlockProps) {
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<boolean>(false);
 
   // Extract language from className (e.g., "language-javascript" -> "javascript")
   const language = className?.replace(/language-/, '') || 'text';
@@ -29,67 +30,27 @@ export function CodeBlock({ children, className }: CodeBlockProps) {
 
   return (
     <div className="relative group my-6">
-      <Highlight
-        theme={themes.oneDark}
-        code={code}
-        language={
-          language as
-            | 'javascript'
-            | 'typescript'
-            | 'python'
-            | 'css'
-            | 'jsx'
-            | 'tsx'
-            | 'json'
-            | 'bash'
-            | 'dart'
-            | 'yaml'
-            | 'xml'
-            | 'java'
-            | 'kotlin'
-            | 'swift'
-            | 'go'
-            | 'rust'
-            | 'text'
-        }
+      <SyntaxHighlighter
+        language={language}
+        style={oneDark}
+        customStyle={{
+          backgroundColor: '#0a0c10',
+          border: '1px solid #1c2128',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.3)',
+          borderRadius: '0.5rem',
+          padding: '1rem',
+          margin: 0,
+          fontSize: '0.875rem',
+        }}
+        showLineNumbers={code.split('\n').length > 5}
+        lineNumberStyle={{
+          color: '#8b949e',
+          marginRight: '1rem',
+          userSelect: 'none',
+        }}
       >
-        {({
-          className: highlightClassName,
-          style,
-          tokens,
-          getLineProps,
-          getTokenProps,
-        }) => (
-          <pre
-            className={`${highlightClassName} overflow-x-auto p-4 rounded-lg text-sm relative`}
-            style={{
-              ...style,
-              backgroundColor: '#0a0c10',
-              border: '1px solid #1c2128',
-              color: '#f0f6fc',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.3)',
-            }}
-          >
-            {tokens.map((line, i) => (
-              <div key={i} {...getLineProps({ line })}>
-                {tokens.length > 5 && (
-                  <span className="select-none mr-4 inline-block w-8 text-right text-gray-400">
-                    {i + 1}
-                  </span>
-                )}
-                {line.map((token, key) => {
-                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                  const { key: _, ...tokenProps } = getTokenProps({
-                    token,
-                    key,
-                  });
-                  return <span key={key} {...tokenProps} />;
-                })}
-              </div>
-            ))}
-          </pre>
-        )}
-      </Highlight>
+        {code}
+      </SyntaxHighlighter>
 
       {/* Copy button */}
       <button
