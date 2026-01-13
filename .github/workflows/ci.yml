@@ -22,8 +22,6 @@ jobs:
       # Install pnpm
       - name: Install pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 10.28.0
 
       # Setup Node.js with version from .nvmrc
       - name: Setup Node.js ${{ matrix.node-version }}
