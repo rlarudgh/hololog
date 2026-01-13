@@ -40,10 +40,11 @@ cd hololog
 bash scripts/initial-setting.sh
 
 # 3. Start the development server
-yarn dev
+pnpm dev
 ```
 
 The setup script will:
+
 - ✅ Check Node.js and Yarn versions
 - ✅ Install all dependencies
 - ✅ Configure environment variables
@@ -60,16 +61,16 @@ git clone https://github.com/rlarudgh/hololog
 cd hololog
 
 # 2. Install dependencies
-yarn install
+pnpm install
 
 # 3. Setup environment variables
 cp .env.example .env.local
 
 # 4. Setup Git hooks
-yarn prepare
+pnpm prepare
 
 # 5. Start the development server
-yarn dev
+pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to view the application.
@@ -105,34 +106,34 @@ src/
 
 ```bash
 # Start development server
-yarn dev
+pnpm dev
 
 # Build for production
-yarn build
+pnpm build
 
 # Start production server
-yarn start
+pnpm start
 
 # Run linters
-yarn lint
+pnpm lint
 
 # Run tests
-yarn test
+pnpm test
 
 # Run tests with coverage report
-yarn test:coverage
+pnpm test:coverage
 
 # Update the posts structure in content/README.md
-yarn update-readme
+pnpm update-readme
 
 # Run SEO audit (requires dev server running or provide URL)
-yarn seo:check
-yarn seo:check:prod  # Check production site
+pnpm seo:check
+pnpm seo:check:prod  # Check production site
 ```
 
 ## 📝 Writing Blog Posts
 
-Create MDX files in the `content/posts/` directory. The structure of this directory is automatically updated in `content/README.md` by running `yarn update-readme`.
+Create MDX files in the `content/posts/` directory. The structure of this directory is automatically updated in `content/README.md` by running `pnpm update-readme`.
 
 ```markdown
 ---
@@ -198,16 +199,17 @@ Run automated SEO audits using Lighthouse:
 
 ```bash
 # Check development server (must be running)
-yarn seo:check
+pnpm seo:check
 
 # Check production site
-yarn seo:check:prod
+pnpm seo:check:prod
 
 # Check custom URL
 bash scripts/seo-check.sh https://your-domain.com
 ```
 
 The SEO audit script:
+
 - Runs Lighthouse SEO analysis
 - Generates detailed reports (JSON + HTML)
 - Provides actionable recommendations
@@ -234,18 +236,21 @@ The SEO audit script:
 ## 📚 Documentation
 
 ### Project Documentation
+
 - **[Product Requirements Document (PRD)](./docs/PRD.md)** - Product vision, requirements, and roadmap
 - **[Technical Skills Reference](./docs/SKILLS.md)** - Technologies, best practices, and learning resources
 - **[Development Plan Template](./docs/PLAN.md)** - Guide for creating feature development plans
 - **[Architecture Decision Records](./docs/DECISIONS.md)** - History of architectural decisions
 
 ### Development Documentation
+
 - **[CLAUDE.md](./CLAUDE.md)** - Development guidelines and coding standards for AI assistants
 - **[FSD Architecture](./docs/development/FSD_ARCHITECTURE.md)** - Feature-Sliced Design methodology and implementation
 - **[Git Flow](./docs/development/GIT_FLOW.md)** - Branching strategy and commit conventions
 - **[Utterances Setup](./docs/UTTERANCES_SETUP.md)** - Comments system configuration
 
 ### Content Documentation
+
 - **[Content README](./content/README.md)** - Blog posts structure and organization (auto-generated)
 
 ## 🚀 Deployment
@@ -258,7 +263,7 @@ The easiest way to deploy this Next.js app is to use the [Vercel Platform](https
 
 ```bash
 # Build for production
-yarn build
+pnpm build
 
 # The output will be in the .next/ directory
 ```
