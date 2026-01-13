@@ -1,0 +1,669 @@
+---
+title: "[OAuth] Flutter로 Line OAuth 구현해보기"
+date: "2026-01-12"
+description: "라인 로그인 아무도 안해서 내가 해보기"
+tags: ["OAuth", "Flutter", "Line", "Hybrid App"]
+---
+
+Line은 국내에서 많이 쓰지는 않지만 일본에서는 많이 쓰이는 SNS 중 하나입니다.
+
+얼마 전 회사에서 일본쪽에 앱을 출시하기 시작하여 Line OAuth를 구현해야하는 상황이 놓았습니다.
+우선적으로 흐름을 파악하기 위해 다른 개발자들이 해놓은 오픈소스 결과물과 공식문서 등 여러가지를 확인해보려 했지만  국내에서는 라인 OAuth를 Flutter로 개발한 개발자 수도 많이 없었습니다.
+
+![](https://velog.velcdn.com/images/kimkh05/post/12364e42-f9b6-4b67-8468-b797de1526bc/image.png)
+
+또한 라인 공식문서에서도 Flutter에 대해서는 라이브러리를 쓰라고만 하더라고요..
+라이브러리 사용도중 겪었던 문제들을 여기에 풀어보려고 합니다.
+
+## 라인 로그인 키 받기
+
+우선적으로 Kakao든지 Google이든지 OAuth를 사용하기 위해서는 api_key를 받아야합니다. api_key를 받는 이유는 이 키를 통해 그 쪽 서버에 접근하고 리소스 권한을 부여받게 함입니다.
+
+일단 [Developer Line Console](https://developers.line.biz/console/)에 들어갑니다.
+
+1. 우선적으로 Provider를 생성합니다.
+2. Channel을 만들어줍니다.
+![](https://velog.velcdn.com/images/kimkh05/post/ff2944e8-8ba6-492e-be02-c9813918139a/image.png)
+
+채널을 생성하면 안에 기본 설정할 것들이 있습니다.
+개인정보들이 있어 따로 캡쳐하지는 않았지만 자기 상황에 맞게 설정해줍니다.
+![](https://velog.velcdn.com/images/kimkh05/post/56986ba7-837d-4e5c-b5c9-23fc34ee4e5d/image.png)
+
+저희는 라인 로그인을 Native에서 처리할 것이기 때문에 `Use LINE Login in your mobile app` 부분을 활성화 시켜줍니다.
+밑에는 사용하는 앱의 Package 정보를 넣으면 됩니다.
+
+![](https://velog.velcdn.com/images/kimkh05/post/a6cd79a5-b5ae-42f5-9c30-b32e0183f5fa/image.png)
+
+또한 테스트를 위해 테스트 계정도 여기에 추가해줍니다.
+
+
+## 사용 기술과 아키택쳐
+
+현재 제가 사용한 기술은 아래와 같습니다.
+
+### 사용 기술
+- Hybrid App (WebView + Native)
+- **WebView**: React + TypeScript 
+- **App**: Flutter + Dart
+
+### 아키택쳐
+`flutter_line_sdk` 패키지를 사용하여 네이티브 레벨에서 OAuth를 처리하고, 결과를 WebView로 전달하는 아키텍처를 사용합니다.
+
+![](https://velog.velcdn.com/images/kimkh05/post/069998c3-a37f-4948-ab31-08d0e72e1db7/image.png)
+
+
+
+
+## 연동 방법
+
+### Line Auth Service 구축
+
+우선적으로 라인 인증 서비스를 구축해줍니다.
+`lib/services/line_auth_services.dart`
+
+```dart
+ import 'package:flutter/foundation.dart';
+ import 'package:flutter_line_sdk/flutter_line_sdk.dart';
+ import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+ class LineAuthService {
+   static LineAuthService? _instance;
+
+   LineAuthService._();
+
+   static LineAuthService get instance {
+     return _instance ??= LineAuthService._();
+   }
+
+   /// LINE SDK 초기화 (main.dart에서 호출)
+   static void initialize() {
+     final lineChannelId = dotenv.env['LINE_CHANNEL_ID'];
+
+     if (lineChannelId == null || lineChannelId.isEmpty) {
+       if (kDebugMode) {
+         print('❌ [LINE SDK] LINE_CHANNEL_ID is not set in .env file');
+       }
+       return;
+     }
+
+     LineSDK.instance.setup(lineChannelId).then((_) {
+       if (kDebugMode) {
+         print('✅ [LINE SDK] Setup completed successfully');
+       }
+     }).catchError((error, stackTrace) {
+       if (kDebugMode) {
+         print('❌ [LINE SDK] Setup failed: $error');
+       }
+     });
+   }
+
+   /// LINE 로그인
+   Future<LineTokenResult> signInWithLine() async {
+     try {
+       // LINE 로그인 실행 (profile, openid, email scope 요청)
+       final result = await LineSDK.instance.login(
+         scopes: ['profile', 'openid', 'email'],
+       );
+
+       final profile = result.userProfile;
+
+       if (profile == null) {
+         throw Exception('Failed to get user profile');
+       }
+
+       return LineTokenResult.success(
+         userInfo: LineUserInfo(
+           userId: profile.userId,
+           displayName: profile.displayName,
+           pictureUrl: profile.pictureUrl?.toString(),
+           statusMessage: profile.statusMessage,
+           email: null,
+         ),
+         tokens: LineTokens(
+           accessToken: result.accessToken.data['access_token'] as String,
+           expiresIn: (result.accessToken.data['expires_in'] as num).toInt(),
+           idToken: result.accessToken.data['id_token'] as String?,
+         ),
+       );
+     } catch (e, stackTrace) {
+       String errorCode = _getErrorCode(e.toString());
+       return LineTokenResult.error(errorCode, e.toString());
+     }
+   }
+
+    /// 에러 코드 분석
+    String _getErrorCode(String error) {
+     if (error.contains('CANCEL') || error.contains('cancelled')) {
+       return 'SIGN_IN_CANCELLED';
+     } else if (error.contains('NETWORK') || error.contains('network')) {
+       return 'NETWORK_ERROR';
+     } else if (error.contains('AUTHENTICATION_AGENT_ERROR')) {
+       return 'AUTHENTICATION_ERROR';
+     } else if (error.contains('PlatformException')) {
+       return 'PLATFORM_ERROR';
+     } else {
+       return 'UNKNOWN_ERROR';
+     }
+   }
+ }
+  ```
+  
+데이터 모델 클래스
+  ```dart
+  /// LINE 토큰 정보
+  class LineTokens {
+    final String accessToken;
+    final int expiresIn;
+    final String? idToken;  // JWT 형식, 이메일 정보 포함
+
+    LineTokens({
+      required this.accessToken,
+      required this.expiresIn,
+      this.idToken,
+    });
+
+    Map<String, dynamic> toJson() {
+      return {
+        'accessToken': accessToken,
+        'expiresIn': expiresIn,
+        'idToken': idToken,
+      };
+    }
+  }
+
+  /// LINE 사용자 정보
+  class LineUserInfo {
+    final String userId;          // LINE 고유 사용자 ID
+    final String displayName;     // 사용자 이름
+    final String? pictureUrl;     // 프로필 이미지 URL
+    final String? statusMessage;  // LINE 상태메시지
+    final String? email;          // 항상 null (이메일은 idToken에 있음)
+
+    LineUserInfo({
+      required this.userId,
+      required this.displayName,
+      this.pictureUrl,
+      this.statusMessage,
+      this.email,
+    });
+
+    Map<String, dynamic> toJson() {
+      return {
+        'provider': 'line',
+        'userId': userId,
+        'displayName': displayName,
+        'pictureUrl': pictureUrl,
+        'statusMessage': statusMessage,
+        'email': email,
+      };
+    }
+  }
+
+  /// 로그인 결과 (성공/실패)
+  class LineTokenResult {
+    final bool isSuccess;
+    final String? errorCode;
+    final String? errorMessage;
+    final LineUserInfo? userInfo;
+    final LineTokens? tokens;
+
+    factory LineTokenResult.success({
+      required LineUserInfo userInfo,
+      required LineTokens tokens,
+    }) {
+      return LineTokenResult._(
+        isSuccess: true,
+        userInfo: userInfo,
+        tokens: tokens,
+      );
+    }
+
+    factory LineTokenResult.error(String errorCode, String errorMessage) {
+      return LineTokenResult._(
+        isSuccess: false,
+        errorCode: errorCode,
+        errorMessage: errorMessage,
+      );
+    }
+  }
+  ```
+
+그리고 앱 초기화 코드입니다.
+`lib/main.dart`
+  ```dart
+   void main() async {
+    WidgetsFlutterBinding.ensureInitialized();
+
+    // 환경변수 로드
+    String envFile = ".env";
+    if (kDebugMode) {
+      try {
+        await dotenv.load(fileName: ".env.development");
+        envFile = ".env.development";
+      } catch (e) {
+        await dotenv.load(fileName: ".env");
+      }
+    } else {
+      try {
+        await dotenv.load(fileName: ".env.production");
+        envFile = ".env.production";
+      } catch (e) {
+        await dotenv.load(fileName: ".env");
+      }
+    }
+
+    // ⭐ LINE SDK 초기화 (runApp() 전에 호출 필수)
+    LineAuthService.initialize();
+
+    runApp(const MyApp());
+  }
+  ```
+
+### 앱 환경 설정
+
+OS별로 설정해야할 것이 있습니다.
+`ios/Runner/Info.plist`
+```plist
+<!-- LINE OAuth URL Scheme -->
+  <key>CFBundleURLTypes</key>
+  <array>
+    <dict>
+      <key>CFBundleURLName</key>
+      <string>line</string>
+      <key>CFBundleURLSchemes</key>
+      <array>
+        <!-- Bundle ID 방식: line3rdp.{BUNDLE_ID} -->
+        <string>line3rdp.com.example.app_bundle_id</string>
+      </array>
+    </dict>
+  </array>
+
+  <!-- LINE 앱 호출을 위한 쿼리 스킴 (필수) -->
+  <key>LSApplicationQueriesSchemes</key>
+  <array>
+    <string>lineauth2</string>
+  </array>
+```
+`android/app/src/main/AndroidManifest.xml`
+```xml
+<activity
+      android:name=".MainActivity"
+      android:exported="true"
+      android:launchMode="singleTop"
+      ...>
+
+      <!-- LINE OAuth Intent Filter -->
+      <intent-filter>
+          <action android:name="android.intent.action.VIEW" />
+          <category android:name="android.intent.category.DEFAULT" />
+          <category android:name="android.intent.category.BROWSABLE" />
+          <data android:scheme="line3rdp.{CHANNEL_ID}" />
+      </intent-filter>
+  </activity>
+```
+
+그리고 환경변수도 설정해야합니다.
+```python
+# .env.example
+LINE_CANNEL_ID=1234567890 # 예제 값
+```
+
+
+### WebView 연동 (하이브리드 앱일 경우에만 사용)
+
+Flutter에서 JavaScript Bridge Protocol로 전송합니다.
+```dart
+void _handleLineLogin(Map<String, dynamic>? payload) async {
+    try {
+      final result = await LineAuthService.instance.signInWithLine();
+
+      if (result.isSuccess) {
+        _sendMessageToWeb({
+          'action': 'REQ-LINE-LOGIN',
+          'status': 'SUCCESS',
+          'result': {
+            'accessToken': result.tokens?.accessToken,
+            'idToken': result.tokens?.idToken,
+            'userInfo': result.userInfo?.toJson(),
+          },
+        });
+      } else {
+        _sendMessageToWeb({
+          'action': 'REQ-LINE-LOGIN',
+          'status': 'ERROR',
+          'result': {
+            'error': result.error,
+          },
+        });
+      }
+    } catch (e) {
+      // 예외 처리
+    }
+  }
+```
+
+이제 웹뷰에서 받는 코드를 작성합니다.
+`src/shared/api/flutterBridge/flutterBridge.types.ts`
+
+```ts
+export enum FlutterBridgeAction {
+  REQ_LINE_LOGIN = 'REQ-LINE-LOGIN',
+  REQ_GOOGLE_LOGIN = 'REQ-GOOGLE-LOGIN',
+  //...
+}
+
+export interface FlutterBridgeMessage<T = unknown> {
+  action: FlutterBridgeAction;
+  payload: T;
+}
+
+export type FlutterBridgeStatus = 'SUCCESS' | 'ERROR' | 'CANCELLED';
+
+export interface FlutterBridgeResponse<T = unknown> {
+  action: FlutterBridgeAction;
+  status: FlutterBridgeStatus;
+  timestamp: number;
+  result?: T;
+  error?: string;
+}
+
+export interface LineLoginPayload { /* 필요시 추가 */}
+
+export interface LineLoginResult {
+  accessToken: string;
+  idToken: string | null;
+  userInfo: LineUserInfo;
+}
+
+/**
+ * LINE 사용자 정보
+ */
+export interface LineUserInfo {
+  provider: 'line';
+  userId: string;
+  displayName: string;
+  pictureUrl: string | null;
+  statusMessage: string | null;
+  email: string | null;
+}
+
+/**
+ * LINE 로그인 에러 결과
+ */
+export interface LineLoginError {
+  error: string;
+}
+```
+
+`src/shared/api/flutterBridge/flutterBridge.protocol.ts`
+```ts
+import {
+    FlutterBridgeAction,
+    FlutterBridgeMessage,
+    FlutterBridgeResponse,
+    LineLoginPayload,
+    LineLoginResult,
+  } from './flutterBridge.types';
+
+  /**
+   * Flutter Bridge 통신 클래스
+   */
+  class FlutterBridgeClient {
+    private channelName = 'FlutterChannel';
+    private isFlutterEnv: boolean;
+
+    constructor() {
+      // Flutter WebView 환경인지 확인
+      this.isFlutterEnv = typeof window !== 'undefined' &&
+                          'FlutterChannel' in window;
+    }
+
+    /**
+     * Flutter 환경인지 확인
+     */
+    get isAvailable(): boolean {
+      return this.isFlutterEnv;
+    }
+
+    /**
+     * Flutter로 메시지 전송
+     */
+    private postMessage<T = unknown>(message: FlutterBridgeMessage<T>): void {
+      if (!this.isAvailable) {
+        console.warn('[FlutterBridge] Flutter environment not available');
+        return;
+      }
+
+      const messageString = JSON.stringify(message);
+
+      if (this.isFlutterEnv) {
+        (window as any).FlutterChannel?.postMessage(messageString);
+      }
+
+      console.log('[FlutterBridge] Sent:', message);
+    }
+
+    /**
+     * LINE 로그인 요청
+     */
+    requestLineLogin(payload: LineLoginPayload = {}): Promise<LineLoginResult> {
+      return new Promise((resolve, reject) => {
+        // 핸들러 등록
+        const handler = (event: MessageEvent) => {
+          try {
+            const response: FlutterBridgeResponse<LineLoginResult> =
+              JSON.parse(event.data);
+
+            // LINE 로그인 응답인지 확인
+            if (response.action === FlutterBridgeAction.REQ_LINE_LOGIN) {
+              // 핸들러 제거
+              window.removeEventListener('message', handler);
+
+              if (response.status === 'SUCCESS' && response.result) {
+                console.log('[FlutterBridge] LINE Login Success:', response.result);
+                resolve(response.result);
+              } else {
+                console.error('[FlutterBridge] LINE Login Error:', response.error);
+                reject(new Error(response.error || 'LINE login failed'));
+              }
+            }
+          } catch (error) {
+            console.error('[FlutterBridge] Failed to parse response:', error);
+          }
+        };
+
+        // 메시지 리스너 등록
+        window.addEventListener('message', handler);
+
+        // Flutter로 로그인 요청 전송
+        this.postMessage({
+          action: FlutterBridgeAction.REQ_LINE_LOGIN,
+          payload,
+        });
+
+        // 타임아웃 설정 (30초)
+        setTimeout(() => {
+          window.removeEventListener('message', handler);
+          reject(new Error('LINE login timeout'));
+        }, 30000);
+      });
+    }
+  }
+
+  // 싱글톤 인스턴스
+  export const flutterBridge = new FlutterBridgeClient();
+  ```
+`src/feature/auth/line-logi/model/useLineLogin.ts`
+```ts
+import { useState, useCallback } from 'react';
+import { flutterBridge } from '@/shared/api/flutterBridge/flutterBridge.protocol';
+import type { LineLoginResult } from '@/shared/api/flutterBridge/flutterBridge.types';
+
+interface LineLoginState {
+  isLoading: boolean;
+  error: string | null;
+  result: LineLoginResult | null;
+}
+
+export function useLineLogin() {
+  const [state, setState] = useState<LineLoginState>({
+    isLoading: false,
+    error: null,
+    result: null
+  });
+  
+  const login = useCallback(async () => {
+      setState({
+        isLoading: true,
+        error: null,
+        result: null,
+      });
+
+      try {
+        console.log('[useLineLogin] Starting LINE login...');
+
+        const result = await flutterBridge.requestLineLogin();
+
+        console.log('[useLineLogin] LINE login successful:', result);
+
+        setState({
+          isLoading: false,
+          error: null,
+          result,
+        });
+
+        return result;
+      } catch (error) {
+        const errorMessage = error instanceof Error
+          ? error.message
+          : 'Unknown error occurred';
+
+        console.error('[useLineLogin] LINE login failed:', errorMessage);
+
+        setState({
+          isLoading: false,
+          error: errorMessage,
+          result: null,
+        });
+
+        throw error;
+      }
+    }, []);
+
+    const reset = useCallback(() => {
+      setState({
+        isLoading: false,
+        error: null,
+        result: null,
+      });
+    }, []);
+
+    return {
+      ...state,
+      login,
+      reset,
+    };
+  };
+```
+해당 페이지에서 위 작성한 코드들을 사용합니다. 
+`src/pages/login/ui/login-page.page.tsx`
+``` tsx
+import { FC, useState } from 'react';
+  import { LineLoginButton } from '@/features/auth/line-login';
+  import { LineLoginResult } from '@/shared/api/flutterBridge/flutterBridge.types';
+  import { authApi } from '@/shared/api/authApi'; // 서버 API
+
+  export const LoginPage: FC = () => {
+    const [user, setUser] = useState<LineLoginResult['userInfo'] | null>(null);
+
+    const handleLineLoginSuccess = async (result: LineLoginResult) => {
+      console.log('LINE Login Success:', result);
+
+      try {
+        // 서버로 토큰 전송
+        await authApi.sendLineTokenToServer({
+          accessToken: result.accessToken,
+          idToken: result.idToken,
+          userInfo: result.userInfo,
+        });
+
+        setUser(result.userInfo);
+      } catch (error) {
+        console.error('Failed to send token to server:', error);
+      }
+    };
+
+    const handleLineLoginError = (error: string) => {
+      console.error('LINE Login Error:', error);
+
+      // 에러 메시지 표시
+      if (error.includes('SIGN_IN_CANCELLED')) {
+        // 사용자가 취소
+        console.log('User cancelled login');
+      } else {
+        // 다른 에러 처리
+        alert(`로그인 실패: ${error}`);
+      }
+    };
+
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
+          <h1 className="text-2xl font-bold text-center mb-8">로그인</h1>
+
+          {!user ? (
+            <div className="space-y-4">
+              {/* LINE 로그인 버튼 */}
+              <LineLoginButton
+                onLoginSuccess={handleLineLoginSuccess}
+                onLoginError={handleLineLoginError}
+                className="w-full bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-lg font-semibold"
+              />
+
+              {/* 다른 소셜 로그인 버튼들... */}
+            </div>
+          ) : (
+            <div className="text-center">
+              <img 
+                src={user.pictureUrl || '/default-avatar.png'} 
+                alt={user.displayName}
+                className="w-20 h-20 rounded-full mx-auto mb-4"
+              />
+              <h2 className="text-xl font-semibold mb-2">
+                {user.displayName}님 환영합니다!
+              </h2>
+              <p className="text-gray-600 mb-4">{user.statusMessage}</p>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+```
+
+성공 시 오는 데이터는 아래와 같습니다.
+```js
+ {
+    "action": "REQ-LINE-LOGIN",
+    "status": "SUCCESS",
+    "result": {
+      "accessToken": "XAx8j3...",
+      "idToken": "eyJhbGciOiJIUzI1NiJ9...",
+      "userInfo": {
+        "provider": "line",
+        "userId": "U1234567890",
+        "displayName": "홍길동",
+        "pictureUrl": "https://profile.line-scdn.net/...",
+        "statusMessage": "안녕하세요!",
+        "email": null
+      }
+    }
+}
+```
+  
+위 코드를 통해 웹뷰 배포 및 사용을 하시면 정상적으로 작동하실겁니다. 
+
+글 읽어주셔서 감사합니다.
+
+**출처**
+- Claude Code
+
