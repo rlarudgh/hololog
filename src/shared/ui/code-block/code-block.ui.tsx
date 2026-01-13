@@ -42,6 +42,14 @@ export function CodeBlock({ children, className }: CodeBlockProps) {
             | 'tsx'
             | 'json'
             | 'bash'
+            | 'dart'
+            | 'yaml'
+            | 'xml'
+            | 'java'
+            | 'kotlin'
+            | 'swift'
+            | 'go'
+            | 'rust'
             | 'text'
         }
       >
