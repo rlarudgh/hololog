@@ -4,11 +4,7 @@
 /node_modules
 /.pnp
 .pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
+.pnpm-store/
 
 # testing
 /coverage
@@ -23,6 +19,11 @@
 # misc
 .DS_Store
 *.pem
+
+# cache
+.cache
+.turbo
+.eslintcache
 
 # debug
 npm-debug.log*
@@ -49,3 +50,6 @@ next-env.d.ts
 
 # seo reports
 .seo-reports
+
+*storybook.log
+storybook-static
