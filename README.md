@@ -89,10 +89,13 @@ src/
 │   └── blog/              # Blog-related entities
 ├── features/              # Business logic features
 ├── shared/                # Shared utilities and UI components
-│   ├── configs/           # Configuration files
-│   ├── libs/              # Utility libraries
+│   ├── configs/           # Configuration files (SEO, etc.)
+│   ├── libs/              # Utility libraries (MDX, Google AdSense)
 │   ├── types/             # TypeScript types
-│   └── ui/                # Reusable UI components (Button, Icon, etc.)
+│   ├── ui/                # Reusable UI components
+│   │   └── structured-data/  # JSON-LD structured data components
+│   └── utils/             # Utility functions
+│       └── metadata/      # Metadata utility functions
 └── widgets/               # Complex UI blocks (e.g., Header, Footer)
     ├── header/            # Header component
     └── footer/            # Footer component
@@ -180,12 +183,14 @@ This project includes comprehensive SEO features to improve search engine visibi
   - BreadcrumbList for navigation
   - WebSite schema with search functionality
   - Organization and Person schemas
+  - Automatic schema generation for blog posts
 
 - **Technical SEO:**
   - Dynamic sitemap generation (`/sitemap.xml`)
   - Robots.txt configuration
   - Canonical URLs
   - Proper robots meta tags
+  - Metadata utility functions for consistent SEO implementation
 
 ### SEO Audit Script
 

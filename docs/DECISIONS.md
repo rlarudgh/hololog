@@ -84,6 +84,7 @@ Create an ADR for decisions that:
 | [ADR-005](#adr-005-implement-serverclient-component-hybrid) | Implement Server/Client Component Hybrid | Accepted | 2024-01-01 |
 | [ADR-006](#adr-006-use-yarn-berry-as-package-manager) | Use Yarn Berry as Package Manager | Accepted | 2024-01-01 |
 | [ADR-007](#adr-007-enforce-conventional-commits) | Enforce Conventional Commits | Accepted | 2024-01-01 |
+| [ADR-008](#adr-008-implement-structured-data-json-ld) | Implement Structured Data (JSON-LD) | Accepted | 2026-01-13 |
 
 ---
 
@@ -700,6 +701,110 @@ Enforce **Conventional Commits** specification.
 - [x] Husky pre-commit hook set up
 - [x] Commitlint config defined
 - [x] Documentation in docs/development/GIT_FLOW.md
+
+---
+
+### ADR-008: Implement Structured Data (JSON-LD)
+
+**Status:** Accepted
+
+**Date:** 2026-01-13
+
+#### Context
+Search engines need structured data to better understand website content and display rich snippets in search results. We need a solution that:
+- Provides search engines with structured information about our content
+- Supports rich snippets in search results
+- Follows Schema.org standards
+- Maintains type safety with TypeScript
+- Integrates seamlessly with Next.js metadata API
+- Supports dynamic schema generation for blog posts
+
+Options:
+- Manual JSON-LD script tags
+- React component-based structured data
+- Third-party schema libraries
+- Custom implementation with TypeScript types
+
+#### Decision
+Implement **custom Structured Data components** using JSON-LD format with TypeScript type safety.
+
+**Implementation Details:**
+- `StructuredData` component in `src/shared/ui/structured-data/`
+- Schema types defined with TypeScript interfaces
+- Supports multiple schema types:
+  - BlogPosting for blog posts
+  - BreadcrumbList for navigation
+  - WebSite with search capability
+  - Organization and Person schemas
+- Metadata utility functions for consistency
+- Server-side rendering integration
+- JSON-LD script tag injection
+
+**Rationale:**
+- JSON-LD is Google's recommended format
+- Custom implementation gives full control
+- TypeScript provides compile-time validation
+- Reusable components across pages
+- No additional dependencies needed
+- Easy to extend with new schema types
+
+#### Consequences
+
+**Positive:**
+- ✅ Better search engine understanding
+- ✅ Rich snippets in search results
+- ✅ Type-safe implementation
+- ✅ Reusable components
+- ✅ Easy to maintain and extend
+- ✅ No external dependencies
+- ✅ SEO best practices
+
+**Negative:**
+- ❌ Requires manual schema updates for new content types
+- ❌ Initial setup time
+- ❌ Need to validate schema with Google tools
+- ❌ Must keep schema in sync with actual content
+
+**Mitigation:**
+- Comprehensive TypeScript interfaces
+- Reusable components reduce boilerplate
+- Google Rich Results Test for validation
+- Documentation for adding new schemas
+- Regular schema validation in testing
+
+#### Alternatives Considered
+
+**Third-party libraries (react-schemaorg, schema-dts)**
+- Rejected: Additional dependency
+- Custom implementation is simple enough
+- More control over implementation
+
+**Only manual JSON-LD without components**
+- Rejected: Not reusable
+- Harder to maintain
+- No type safety
+
+**No structured data**
+- Rejected: Missed SEO opportunity
+- Rich snippets improve CTR
+- Industry best practice
+
+#### References
+- [Schema.org](https://schema.org/)
+- [Google Structured Data Guidelines](https://developers.google.com/search/docs/appearance/structured-data)
+- [JSON-LD Documentation](https://json-ld.org/)
+- [Next.js Metadata API](https://nextjs.org/docs/app/api-reference/functions/generate-metadata)
+
+#### Implementation
+- [x] StructuredData component created
+- [x] Schema type definitions added
+- [x] BlogPosting schema for posts
+- [x] BreadcrumbList schema for navigation
+- [x] WebSite schema with search
+- [x] Organization and Person schemas
+- [x] Metadata utility functions created
+- [x] Integration with blog post pages
+- [x] Documentation in README.md
 
 ---
 
