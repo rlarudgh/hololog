@@ -1,3 +1,9 @@
+# [1.1.0](https://github.com/rlarudgh/hololog/compare/v1.0.0...v1.1.0) (2026-01-14)
+
+### Features
+
+- add Storybook GitHub Pages deployment ([e53241e](https://github.com/rlarudgh/hololog/commit/e53241ebc84c3fe4326d94676266e6f1c519d62d))
+
 # 1.0.0 (2026-01-14)
 
 ### Bug Fixes
