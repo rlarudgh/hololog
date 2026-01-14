@@ -38,9 +38,6 @@ export function generateMetadata(params: SeoMetadataParams = {}): Metadata {
     image = SEO_CONFIG.openGraph.images[0].url,
     noindex = false,
     canonical,
-    publishedTime,
-    modifiedTime,
-    authors = [],
     tags = [],
   } = params;
 

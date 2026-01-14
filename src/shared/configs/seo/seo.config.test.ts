@@ -42,10 +42,10 @@ describe('SEO_CONFIG', () => {
     ];
     const frequencies = Object.values(changeFrequency);
 
-    +expect(frequencies).toHaveLength(validFrequencies.length);
+    expect(frequencies).toHaveLength(validFrequencies.length);
 
-    +frequencies.forEach((freq) => {
-      +expect(validFrequencies).toContain(freq);
+    frequencies.forEach((freq) => {
+      expect(validFrequencies).toContain(freq);
     });
   });
 

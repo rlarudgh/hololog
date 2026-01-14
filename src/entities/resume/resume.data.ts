@@ -1,4 +1,3 @@
-import type { ResumeData } from './resume.types';
 import { personalInfo } from './data/personal-info.data';
 import { certifications } from './data/certifications.data';
 import { workExperience } from './data/work-experience.data';
