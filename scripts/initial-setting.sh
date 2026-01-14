@@ -100,24 +100,16 @@ else
     exit 1
 fi
 
-# Step 3: Check Yarn version
-print_step "Checking Yarn..."
-if ! command_exists yarn; then
-    print_error "Yarn is not installed"
-    echo "Installing Yarn Berry..."
-    corepack enable
-    corepack prepare yarn@4.12.0 --activate
-    print_success "Yarn 4.12.0 installed"
+# Step 3: Check pnpm version
+print_step "Checking pnpm..."
+if ! command_exists pnpm; then
+    print_error "pnpm is not installed"
+    echo "Installing pnpm..."
+    npm install -g pnpm@10.28.0
+    print_success "pnpm 10.28.0 installed"
 else
-    YARN_VERSION=$(yarn -v)
-    print_success "Yarn version: $YARN_VERSION"
-
-    # Check if it's Yarn Berry (version 2+)
-    if [[ $YARN_VERSION == 1.* ]]; then
-        print_warning "Yarn Classic detected. This project uses Yarn Berry (v4)"
-        echo "Run: corepack enable && corepack prepare yarn@4.12.0 --activate"
-        exit 1
-    fi
+    PNPM_VERSION=$(pnpm -v)
+    print_success "pnpm version: $PNPM_VERSION"
 fi
 
 # Step 4: Check Git initialization
@@ -139,7 +131,7 @@ fi
 # Step 5: Install dependencies
 print_step "Installing dependencies..."
 echo "This may take a few minutes..."
-if yarn install; then
+if pnpm install; then
     print_success "Dependencies installed successfully"
 else
     print_error "Failed to install dependencies"
@@ -163,7 +155,7 @@ print_step "Setting up Git hooks..."
 if [[ -d ".husky" ]]; then
     print_success "Husky already configured"
 else
-    if yarn prepare; then
+    if pnpm prepare; then
         print_success "Husky Git hooks configured"
     else
         print_warning "Failed to configure Husky hooks (non-critical)"
@@ -202,10 +194,10 @@ echo ""
 echo -e "${GREEN}Your Hololog development environment is ready!${NC}"
 echo ""
 echo "Quick start:"
-echo "  ${BLUE}yarn dev${NC}         - Start development server"
-echo "  ${BLUE}yarn build${NC}       - Build for production"
-echo "  ${BLUE}yarn test${NC}        - Run tests"
-echo "  ${BLUE}yarn lint${NC}        - Run linters"
+echo "  ${BLUE}pnpm dev${NC}         - Start development server"
+echo "  ${BLUE}pnpm build${NC}       - Build for production"
+echo "  ${BLUE}pnpm test${NC}        - Run tests"
+echo "  ${BLUE}pnpm lint${NC}        - Run linters"
 echo ""
 echo "Documentation:"
 echo "  ${BLUE}README.md${NC}        - Project overview and getting started"
@@ -214,7 +206,7 @@ echo "  ${BLUE}docs/${NC}            - Detailed documentation"
 echo ""
 echo "Next steps:"
 echo "  1. Review and update .env.local if needed"
-echo "  2. Run 'yarn dev' to start the development server"
+echo "  2. Run 'pnpm dev' to start the development server"
 echo "  3. Open http://localhost:3000 in your browser"
 echo ""
 echo -e "${YELLOW}Note: If this is a new project, don't forget to:${NC}"
