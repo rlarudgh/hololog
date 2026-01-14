@@ -52,7 +52,12 @@ export default function ResumePage() {
                 </div>
                 <div className="flex items-center gap-2 text-gray-700">
                   <FaEnvelope className="text-red-500" />
-                  <span>{personalInfo.email}</span>
+                  <a
+                    href={`mailto:${personalInfo.email}`}
+                    className="hover:text-blue-600 transition-colors"
+                  >
+                    {personalInfo.email}
+                  </a>
                 </div>
                 <div className="flex items-center gap-2 text-gray-700 md:col-span-2">
                   <FaMapMarkerAlt className="text-purple-500" />
@@ -126,7 +131,7 @@ export default function ResumePage() {
                   </div>
                 </div>
                 <p className="text-gray-700 mb-3">{project.description}</p>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 mb-3">
                   {project.techStack.map((tech, index) => (
                     <span
                       key={index}
@@ -136,6 +141,33 @@ export default function ResumePage() {
                     </span>
                   ))}
                 </div>
+
+                {/* Links section */}
+                {(project.url || project.links) && (
+                  <div className="flex flex-wrap gap-3 pt-3 border-t border-gray-100">
+                    {project.url && (
+                      <a
+                        href={project.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-blue-600 hover:text-blue-800"
+                      >
+                        프로젝트 보기 →
+                      </a>
+                    )}
+                    {project.links?.map((link, index) => (
+                      <a
+                        key={index}
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-blue-600 hover:text-blue-800"
+                      >
+                        {link.label} →
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
           </div>

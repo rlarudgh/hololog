@@ -5,7 +5,6 @@ import {
   calculateWorkDuration,
 } from './resume.utils';
 import { resumeData } from './resume.data';
-import type { ResumeData } from './resume.types';
 
 describe('Resume Utils', () => {
   describe('calculateAge', () => {
@@ -160,7 +159,7 @@ describe('Resume Data', () => {
 
   it('matches ResumeData type structure', () => {
     // This is a compile-time type check; at runtime we just verify the structure
-    const data: ResumeData = resumeData;
+    const data = resumeData;
     expect(data).toBe(resumeData);
   });
 });

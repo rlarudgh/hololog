@@ -25,6 +25,11 @@ export interface WorkExperience {
   description?: string;
 }
 
+export interface ProjectLink {
+  label: string;
+  url: string;
+}
+
 export interface Project {
   id: number;
   name: string;
@@ -34,6 +39,7 @@ export interface Project {
   description: string;
   techStack: string[];
   url?: string;
+  links?: ProjectLink[];
 }
 
 export interface ResumeData {
