@@ -10,6 +10,10 @@ const navItems = [
     href: '/about',
     label: 'About',
   },
+  {
+    href: '/resume',
+    label: 'Resume',
+  },
 ];
 
 export function Header() {
