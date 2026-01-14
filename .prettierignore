@@ -1,3 +1,4 @@
 *.mdx
 yarn.lock
 node_modules
+pnpm-lock.yaml

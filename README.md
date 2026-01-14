@@ -17,7 +17,7 @@ A modern, performant blog platform built with Next.js 15, TypeScript, and MDX, f
 - **Content**: MDX (Markdown + JSX)
 - **Styling**: Tailwind CSS
 - **Testing**: Vitest
-- **Package Manager**: Yarn Berry
+- **Package Manager**: pnpm
 - **Code Quality**: ESLint, Prettier, Husky, Commitlint
 
 ## 🚀 Getting Started
@@ -25,7 +25,7 @@ A modern, performant blog platform built with Next.js 15, TypeScript, and MDX, f
 ### Prerequisites
 
 - Node.js (lts version recommended)
-- Yarn (Berry)
+- pnpm
 
 ### Installation
 
