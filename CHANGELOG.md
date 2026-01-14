@@ -1,3 +1,9 @@
+# [1.2.0](https://github.com/rlarudgh/hololog/compare/v1.1.0...v1.2.0) (2026-01-14)
+
+### Features
+
+- add resume page with utilities and tests ([ecd3245](https://github.com/rlarudgh/hololog/commit/ecd32458ef6768bcfb1becd6b2832318a66c859d))
+
 # [1.1.0](https://github.com/rlarudgh/hololog/compare/v1.0.0...v1.1.0) (2026-01-14)
 
 ### Features
