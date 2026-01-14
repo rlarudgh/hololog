@@ -1,3 +1,9 @@
+# [1.3.0](https://github.com/rlarudgh/hololog/compare/v1.2.0...v1.3.0) (2026-01-14)
+
+### Features
+
+- refactor resume data into separate files ([e466f9d](https://github.com/rlarudgh/hololog/commit/e466f9debac409948c4892f222c0da822b826f5d))
+
 # [1.2.0](https://github.com/rlarudgh/hololog/compare/v1.1.0...v1.2.0) (2026-01-14)
 
 ### Features
