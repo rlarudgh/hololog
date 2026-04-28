@@ -218,9 +218,9 @@ describe('ClickableImage Component', () => {
   });
 
   it('handles missing className prop', () => {
-    // const { container } = render(
-    //   <ClickableImage src={defaultProps.src} alt={defaultProps.alt} />,
-    // );
+    render(
+      <ClickableImage src={defaultProps.src} alt={defaultProps.alt} />,
+    );
 
     const image = screen.getByRole('img');
 

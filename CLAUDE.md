@@ -6,28 +6,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 # Start development server
-pnpm dev
+bun dev
 
 # Build for production
-pnpm build
+bun build
 
 # Start production server
-pnpm start
+bun start
 
 # Run linters
-pnpm lint
+bun lint
 
 # Run tests (interactive watch mode)
-pnpm test
+bun test
 
 # Run tests once
-pnpm test:run
+bun test:run
 
 # Run tests with coverage
-pnpm test:coverage
+bun test:coverage
 
 # Update content structure documentation
-pnpm update-readme
+bun update-readme
 ```
 
 ## Architecture Overview

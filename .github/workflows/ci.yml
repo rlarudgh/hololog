@@ -19,32 +19,33 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Install pnpm
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
+      # Install Bun
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
 
       # Setup Node.js with version from .nvmrc
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
-          cache: 'pnpm'
 
       # Install dependencies
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: bun install
 
       # Run linting
       - name: Run ESLint
-        run: pnpm lint
+        run: bun run lint
 
       # Run TypeScript type checking
       - name: Run type check
-        run: pnpm tsc --noEmit
+        run: bun run tsc --noEmit
 
       # Run tests with Vitest
       - name: Run tests
-        run: pnpm test:run
+        run: bun run test:run
         env:
           NODE_ENV: test
           CI: true
@@ -53,7 +54,7 @@ jobs:
 
       # Build application
       - name: Build application
-        run: pnpm build
+        run: bun run build
         env:
           NODE_ENV: production
 
@@ -64,7 +65,7 @@ jobs:
         with:
           name: ci-debug-artifacts
           path: |
-            pnpm-lock.yaml
+            bun.lockb
             .next
           retention-days: 3
 
@@ -76,22 +77,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          version: 10.28.0
+          bun-version: latest
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
-          cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: bun install
 
       - name: Run tests with coverage
-        run: pnpm test:coverage
+        run: bun run test:coverage
         env:
           NODE_ENV: test
           CI: true
