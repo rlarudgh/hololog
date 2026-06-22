@@ -1,3 +1,5 @@
 {
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "buildCommand": "bun run db:push && bun run db:sync && bun run build",
+  "installCommand": "bun install"
 }
