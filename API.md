@@ -8,9 +8,9 @@
 
 ## Base URL
 
-| 환경 | URL |
-| ---- | --- |
-| 로컬 | `http://localhost:3000` |
+| 환경     | URL                          |
+| -------- | ---------------------------- |
+| 로컬     | `http://localhost:3000`      |
 | 프로덕션 | `https://hololog.vercel.app` |
 
 > `localhost:3000`은 **내 PC 안에서만** 접근됩니다. 외부/다른 사이트에서 쓰려면 배포된 URL을 사용하세요.
@@ -27,12 +27,27 @@ x-api-key: <YOUR_KEY>
 Authorization: Bearer <YOUR_KEY>
 ```
 
-| 작업 | 필요한 키 | 환경변수 |
-| ---- | --------- | -------- |
-| 읽기 (GET) | 읽기 키 | `BLOG_API_KEYS` (쉼표로 여러 개) |
-| 쓰기 (POST/PUT/DELETE) | 쓰기 키 | `BLOG_API_WRITE_KEY` |
+| 작업                   | 필요한 키 | 환경변수                         |
+| ---------------------- | --------- | -------------------------------- |
+| 읽기 (GET)             | 읽기 키   | `BLOG_API_KEYS` (쉼표로 여러 개) |
+| 쓰기 (POST/PUT/DELETE) | 쓰기 키   | `BLOG_API_WRITE_KEY`             |
 
 > 쓰기 키로는 읽기도 가능하지만, **읽기 키로는 쓰기 불가**(401).
+
+### admin 세션 (관리 화면)
+
+쓰기 API(POST/PUT/DELETE)는 쓰기 키 대신 **Supabase Auth admin 세션 쿠키**로도 호출할 수 있습니다.
+
+- 같은 출처(`Origin`이 이 사이트) 요청만 허용합니다(CSRF 방어). 다른 사이트에서는 API 키를 사용하세요.
+- admin 판정: Supabase `auth.users`의 `app_metadata.role === 'admin'` (설정 방법은 `SUPABASE_SETUP.md` 참고)
+
+| 엔드포인트              | 설명                                           | 응답                                                   |
+| ----------------------- | ---------------------------------------------- | ------------------------------------------------------ |
+| `POST /api/auth/login`  | `{ email, password }`로 로그인, 세션 쿠키 발급 | 200 / 400 / 401(자격 오류) / 403(admin 아님·다른 출처) |
+| `POST /api/auth/logout` | 세션 쿠키 제거                                 | 200 / 403(다른 출처)                                   |
+| `GET /api/auth/me`      | 현재 admin 정보                                | 200 / 401                                              |
+
+관리 화면은 `/admin`(비로그인 시 `/login`으로 이동)입니다.
 
 ## 인터랙티브 문서 (로컬 테스트)
 
@@ -102,15 +117,15 @@ curl -H "x-api-key: $READ_KEY" http://localhost:3000/api/tags
 
 ### POST /api/posts — 글 생성 (쓰기 키)
 
-| 필드 | 타입 | 필수 | 설명 |
-| ---- | ---- | ---- | ---- |
-| `slug` | string | ✅ | 고유 식별자(URL) |
-| `title` | string | ✅ | |
-| `description` | string | ✅ | |
-| `content` | string | ✅ | 본문(MDX/Markdown) |
-| `date` | string | | 발행일(`YYYY-MM-DD`), 생략 시 현재 |
-| `tags` | string[] | | |
-| `published` | boolean | | 기본 `false` |
+| 필드          | 타입     | 필수 | 설명                               |
+| ------------- | -------- | ---- | ---------------------------------- |
+| `slug`        | string   | ✅   | 고유 식별자(URL)                   |
+| `title`       | string   | ✅   |                                    |
+| `description` | string   | ✅   |                                    |
+| `content`     | string   | ✅   | 본문(MDX/Markdown)                 |
+| `date`        | string   |      | 발행일(`YYYY-MM-DD`), 생략 시 현재 |
+| `tags`        | string[] |      |                                    |
+| `published`   | boolean  |      | 기본 `false`                       |
 
 ```bash
 curl -X POST http://localhost:3000/api/posts \
@@ -149,14 +164,14 @@ curl -X DELETE http://localhost:3000/api/posts/hello \
 
 ## 상태 코드
 
-| 코드 | 의미 |
-| ---- | ---- |
-| 200 | 성공 |
-| 201 | 생성됨 |
-| 400 | 요청 바디 검증 실패 |
-| 401 | API 키 없음/불일치 |
-| 404 | 대상 없음 |
-| 409 | slug 중복 등 충돌 |
+| 코드 | 의미                |
+| ---- | ------------------- |
+| 200  | 성공                |
+| 201  | 생성됨              |
+| 400  | 요청 바디 검증 실패 |
+| 401  | API 키 없음/불일치  |
+| 404  | 대상 없음           |
+| 409  | slug 중복 등 충돌   |
 
 ## CORS
 
@@ -180,8 +195,8 @@ const { posts } = await res.json();
 API가 실제 데이터를 반환하려면 DB에 글이 적재되어 있어야 합니다.
 
 ```bash
-bun run db:push   # 스키마 반영
-bun run db:sync   # MDX 글을 DB로 동기화
+bun run db:migrate # 스키마 반영
+bun run db:sync    # MDX 글을 DB로 동기화
 ```
 
 자세한 환경 설정은 [SUPABASE_SETUP.md](./SUPABASE_SETUP.md) 참고.

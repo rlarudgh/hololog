@@ -14,7 +14,9 @@ import { GET, POST } from './route';
 const URL = 'http://localhost/api/posts';
 
 function jsonRequest(method: string, key: string | null, body?: unknown) {
-  const headers: Record<string, string> = { 'content-type': 'application/json' };
+  const headers: Record<string, string> = {
+    'content-type': 'application/json',
+  };
   if (key) headers['x-api-key'] = key;
   return new NextRequest(URL, {
     method,
@@ -44,7 +46,9 @@ describe('/api/posts', () => {
     });
 
     it('returns posts with a valid read key', async () => {
-      listPosts.mockResolvedValue([{ slug: 'a', title: 'A', date: '2025-01-01', description: '' }]);
+      listPosts.mockResolvedValue([
+        { slug: 'a', title: 'A', date: '2025-01-01', description: '' },
+      ]);
       const res = await GET(jsonRequest('GET', 'read-key'));
       expect(res.status).toBe(200);
       const body = await res.json();
@@ -75,7 +79,9 @@ describe('/api/posts', () => {
     });
 
     it('returns 400 on invalid body', async () => {
-      const res = await POST(jsonRequest('POST', 'write-key', { title: 'only' }));
+      const res = await POST(
+        jsonRequest('POST', 'write-key', { title: 'only' }),
+      );
       expect(res.status).toBe(400);
       expect(createPost).not.toHaveBeenCalled();
     });

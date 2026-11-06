@@ -1,19 +1,20 @@
 import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://hololog.vercel.app';
+  const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_URL || 'https://hololog.vercel.app';
 
   return {
     rules: [
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/api/', '/_next/', '/static/'],
+        disallow: ['/api/', '/_next/', '/static/', '/admin', '/login'],
       },
       {
         userAgent: 'Googlebot',
         allow: '/',
-        disallow: ['/api/', '/_next/'],
+        disallow: ['/api/', '/_next/', '/admin', '/login'],
       },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,

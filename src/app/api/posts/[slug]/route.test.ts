@@ -11,13 +11,21 @@ vi.mock('@/shared/database/queries', () => ({
   deletePost: (slug: string) => deletePost(slug),
 }));
 
+const getUser = vi.fn();
+
+vi.mock('@/shared/libs/supabase', () => ({
+  createSupabaseServerClient: async () => ({ auth: { getUser } }),
+}));
+
 import { GET, PUT, DELETE } from './route';
 
 const URL = 'http://localhost/api/posts/hello';
 const ctx = { params: Promise.resolve({ slug: 'hello' }) };
 
 function req(method: string, key: string | null, body?: unknown) {
-  const headers: Record<string, string> = { 'content-type': 'application/json' };
+  const headers: Record<string, string> = {
+    'content-type': 'application/json',
+  };
   if (key) headers['x-api-key'] = key;
   return new NextRequest(URL, {
     method,
@@ -35,6 +43,8 @@ describe('/api/posts/[slug]', () => {
     getPostBySlug.mockReset();
     updatePost.mockReset();
     deletePost.mockReset();
+    getUser.mockReset();
+    getUser.mockResolvedValue({ data: { user: null } });
   });
 
   afterEach(() => {
@@ -98,6 +108,55 @@ describe('/api/posts/[slug]', () => {
       deletePost.mockResolvedValue(true);
       const res = await DELETE(req('DELETE', 'write-key'), ctx);
       expect(res.status).toBe(200);
+    });
+  });
+
+  describe('admin session (no API key)', () => {
+    function sessionReq(method: string, origin: string, body?: unknown) {
+      return new NextRequest(URL, {
+        method,
+        headers: { 'content-type': 'application/json', origin },
+        body: body === undefined ? undefined : JSON.stringify(body),
+      });
+    }
+
+    const admin = { id: 'a', app_metadata: { role: 'admin' } };
+
+    it('PUT succeeds for a same-origin admin', async () => {
+      getUser.mockResolvedValue({ data: { user: admin } });
+      updatePost.mockResolvedValue({ slug: 'hello', published: true });
+      const res = await PUT(
+        sessionReq('PUT', 'http://localhost', { published: true }),
+        ctx,
+      );
+      expect(res.status).toBe(200);
+      expect(updatePost).toHaveBeenCalledWith('hello', { published: true });
+    });
+
+    it('DELETE succeeds for a same-origin admin', async () => {
+      getUser.mockResolvedValue({ data: { user: admin } });
+      deletePost.mockResolvedValue(true);
+      const res = await DELETE(sessionReq('DELETE', 'http://localhost'), ctx);
+      expect(res.status).toBe(200);
+    });
+
+    it('rejects a cross-origin admin session', async () => {
+      getUser.mockResolvedValue({ data: { user: admin } });
+      const res = await DELETE(sessionReq('DELETE', 'https://evil.com'), ctx);
+      expect(res.status).toBe(401);
+      expect(deletePost).not.toHaveBeenCalled();
+    });
+
+    it('rejects a same-origin non-admin session', async () => {
+      getUser.mockResolvedValue({
+        data: { user: { id: 'u', app_metadata: {} } },
+      });
+      const res = await PUT(
+        sessionReq('PUT', 'http://localhost', { title: 'x' }),
+        ctx,
+      );
+      expect(res.status).toBe(401);
+      expect(updatePost).not.toHaveBeenCalled();
     });
   });
 });
