@@ -13,9 +13,9 @@ export const metadata: Metadata = {
 };
 
 /** proxy를 우회하더라도 여기서 다시 admin 세션을 확인한다. */
-export default async function AdminLayout({ children }: PropsWithChildren) {
+export default async function DashboardLayout({ children }: PropsWithChildren) {
   const user = await getAdminUser();
-  if (!user) redirect('/login?next=/admin');
+  if (!user) redirect('/login?next=/dashboard');
 
   return (
     <Container className="py-12">

@@ -41,10 +41,12 @@ describe('LoginForm', () => {
 
   it('posts credentials and navigates to next on success', async () => {
     fetchMock.mockResolvedValue({ ok: true, status: 200 });
-    render(<LoginForm next="/admin/posts" />);
+    render(<LoginForm next="/dashboard/posts" />);
     fillAndSubmit();
 
-    await waitFor(() => expect(replace).toHaveBeenCalledWith('/admin/posts'));
+    await waitFor(() =>
+      expect(replace).toHaveBeenCalledWith('/dashboard/posts'),
+    );
     expect(fetchMock).toHaveBeenCalledWith(
       '/api/auth/login',
       expect.objectContaining({
@@ -59,7 +61,7 @@ describe('LoginForm', () => {
     fetchMock.mockResolvedValue({ ok: true, status: 200 });
     render(<LoginForm next="//evil.com" />);
     fillAndSubmit();
-    await waitFor(() => expect(replace).toHaveBeenCalledWith('/admin'));
+    await waitFor(() => expect(replace).toHaveBeenCalledWith('/dashboard'));
   });
 
   it.each([

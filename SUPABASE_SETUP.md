@@ -151,7 +151,7 @@ http://localhost:3000 에 접속하여 블로그가 정상적으로 작동하는
 
 ## 8. admin 계정 (관리 화면 로그인)
 
-관리 화면(`/admin`)은 Supabase Auth 이메일/비밀번호 로그인을 사용합니다.
+관리 화면(`/dashboard`)은 Supabase Auth 이메일/비밀번호 로그인을 사용합니다.
 필요한 환경 변수는 `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` 두 개입니다(레거시 `NEXT_PUBLIC_SUPABASE_ANON_KEY`도 동작).
 
 1. **계정 생성**: Dashboard > Authentication > Users > **Add user** → 이메일/비밀번호 입력, **Auto Confirm User** 체크
@@ -164,7 +164,7 @@ http://localhost:3000 에 접속하여 블로그가 정상적으로 작동하는
    `app_metadata`는 service role/SQL로만 수정할 수 있어 사용자가 스스로 권한을 올릴 수 없습니다.
    (`user_metadata`는 사용자가 수정 가능하므로 권한에 쓰지 않습니다.)
 3. **회원가입 차단**: Authentication > Sign In / Providers > **Allow new users to sign up** 끄기
-4. `/login`에서 로그인 → `/admin`으로 이동
+4. `/login`에서 로그인 → `/dashboard`로 이동
 
 - 권한을 바꾼 뒤에는 **다시 로그인**해야 세션(JWT)에 반영됩니다.
 - 권한 회수: `raw_app_meta_data = raw_app_meta_data - 'role'`
