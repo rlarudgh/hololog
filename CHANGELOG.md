@@ -1,3 +1,9 @@
+# [1.5.0](https://github.com/rlarudgh/hololog/compare/v1.4.0...v1.5.0) (2026-11-06)
+
+### Features
+
+- add URL shortener with Basic-auth admin stats ([e2c2a21](https://github.com/rlarudgh/hololog/commit/e2c2a2195c089f48ab6ae36d86bdcc25af8ccf3b))
+
 # [1.4.0](https://github.com/rlarudgh/hololog/compare/v1.3.0...v1.4.0) (2026-11-06)
 
 ### Bug Fixes
