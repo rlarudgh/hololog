@@ -5,6 +5,7 @@ import {
   jsonWithCors,
   handleOptions,
 } from '@/shared/libs/api-auth';
+import { requireWriteAccess } from '@/shared/libs/admin-auth';
 import { listPosts, createPost } from '@/shared/database/queries';
 
 // API 라우트는 항상 동적으로 실행한다(정적 캐싱 방지).
@@ -29,16 +30,20 @@ export async function GET(request: NextRequest) {
   return jsonWithCors(request, { posts });
 }
 
-/** POST /api/posts — 글 생성. 쓰기 키 필요. */
+/** POST /api/posts — 글 생성. 쓰기 키 또는 admin 세션 필요. */
 export async function POST(request: NextRequest) {
-  const denied = requireApiKey(request, 'write');
+  const denied = await requireWriteAccess(request);
   if (denied) return denied;
 
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return jsonWithCors(request, { error: 'Invalid JSON body' }, { status: 400 });
+    return jsonWithCors(
+      request,
+      { error: 'Invalid JSON body' },
+      { status: 400 },
+    );
   }
 
   const parsed = createPostSchema.safeParse(body);

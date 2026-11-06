@@ -9,16 +9,21 @@ import {
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
+// 모든 테이블에 RLS를 켜고 정책은 두지 않는다.
+// public 스키마는 publishable 키로 Data API(REST)에 노출되므로 그 경로를 전부 막고,
+// 앱은 DATABASE_URL(postgres 역할, RLS 우회)로만 접근한다.
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
   name: text('name').notNull(),
   email: text('email').notNull().unique(),
   emailVerified: timestamp('emailVerified', { mode: 'date' }),
   image: text('image'),
-  role: text('role', { enum: ['user', 'admin'] }).default('user').notNull(),
+  role: text('role', { enum: ['user', 'admin'] })
+    .default('user')
+    .notNull(),
   createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { mode: 'date' }).defaultNow().notNull(),
-});
+}).enableRLS();
 
 export const posts = pgTable('posts', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -40,14 +45,14 @@ export const posts = pgTable('posts', {
   }),
   createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { mode: 'date' }).defaultNow().notNull(),
-});
+}).enableRLS();
 
 export const tags = pgTable('tags', {
   id: uuid('id').primaryKey().defaultRandom(),
   name: text('name').notNull().unique(),
   slug: text('slug').notNull().unique(),
   createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
-});
+}).enableRLS();
 
 export const postTags = pgTable('post_tags', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -58,7 +63,7 @@ export const postTags = pgTable('post_tags', {
     .notNull()
     .references(() => tags.id, { onDelete: 'cascade' }),
   createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
-});
+}).enableRLS();
 
 export const comments = pgTable('comments', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -74,7 +79,7 @@ export const comments = pgTable('comments', {
   }),
   createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { mode: 'date' }).defaultNow().notNull(),
-});
+}).enableRLS();
 
 export const likes = pgTable('likes', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -85,7 +90,7 @@ export const likes = pgTable('likes', {
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
   createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
-});
+}).enableRLS();
 
 export const usersRelations = relations(users, ({ many }) => ({
   posts: many(posts),

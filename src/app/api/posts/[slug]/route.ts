@@ -5,6 +5,7 @@ import {
   jsonWithCors,
   handleOptions,
 } from '@/shared/libs/api-auth';
+import { requireWriteAccess } from '@/shared/libs/admin-auth';
 import {
   getPostBySlug,
   updatePost,
@@ -39,16 +40,20 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
   return jsonWithCors(request, { post });
 }
 
-/** PUT /api/posts/[slug] — 글 수정. 쓰기 키 필요. */
+/** PUT /api/posts/[slug] — 글 수정. 쓰기 키 또는 admin 세션 필요. */
 export async function PUT(request: NextRequest, { params }: RouteContext) {
-  const denied = requireApiKey(request, 'write');
+  const denied = await requireWriteAccess(request);
   if (denied) return denied;
 
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return jsonWithCors(request, { error: 'Invalid JSON body' }, { status: 400 });
+    return jsonWithCors(
+      request,
+      { error: 'Invalid JSON body' },
+      { status: 400 },
+    );
   }
 
   const parsed = updatePostSchema.safeParse(body);
@@ -68,9 +73,9 @@ export async function PUT(request: NextRequest, { params }: RouteContext) {
   return jsonWithCors(request, { post });
 }
 
-/** DELETE /api/posts/[slug] — 글 삭제. 쓰기 키 필요. */
+/** DELETE /api/posts/[slug] — 글 삭제. 쓰기 키 또는 admin 세션 필요. */
 export async function DELETE(request: NextRequest, { params }: RouteContext) {
-  const denied = requireApiKey(request, 'write');
+  const denied = await requireWriteAccess(request);
   if (denied) return denied;
 
   const { slug } = await params;

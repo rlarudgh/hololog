@@ -104,72 +104,39 @@ GITHUB_CLIENT_SECRET=your-github-client-secret
 
 ## 5. 데이터베이스 마이그레이션
 
-환경 변수를 설정한 후 다음 명령어를 실행하여 데이터베이스 스키마를 생성하세요:
+스키마(`src/shared/database/schema/index.ts`)에서 SQL을 만들고 Supabase DB에 적용합니다.
 
 ```bash
-# 마이그레이션 생성
-bunx drizzle-kit generate
+# 1) SQL 생성 (DB 접속 없음) → drizzle/*.sql
+bun run db:generate
 
-# 마이그레이션 실행
-bunx drizzle-kit migrate
+# 2) Supabase에 적용. Session pooler(5432) 주소를 사용한다.
+#    Direct 연결(db.<ref>.supabase.co)은 IPv6 전용이라 IPv4 네트워크에서 접속이 안 될 수 있다.
+DATABASE_URL="postgresql://postgres.<ref>:<PW>@aws-…pooler.supabase.com:5432/postgres" bun run db:migrate
+
+# 3) MDX 글을 DB로 동기화
+bun run db:sync
 ```
 
-## 6. Row Level Security (RLS) 정책
+- 생성된 SQL을 SQL Editor에 **직접 붙여넣지 마세요.** `db:migrate`는 적용 이력을 `drizzle.__drizzle_migrations`에 기록하므로, 수동으로 실행하면 다음 `db:migrate`가 `already exists` 오류로 실패합니다.
+- 앱 런타임(`.env`, Vercel)의 `DATABASE_URL`은 **Transaction pooler(6543)** 주소를 사용합니다(`db.ts`에 `prepare: false` 설정됨).
+- 연결 문자열은 대시보드 상단 **Connect**에서 복사하고, 비밀번호의 특수문자는 URL 인코딩합니다.
 
-Supabase SQL Editor에서 다음 SQL을 실행하여 RLS 정책을 설정하세요:
+## 6. Row Level Security (RLS)
+
+모든 테이블은 스키마에서 `.enableRLS()`로 RLS가 켜지며(마이그레이션에 포함), **정책은 두지 않습니다.**
+
+- `public` 스키마 테이블은 브라우저에 공개되는 publishable 키로 Data API(REST)에서 접근할 수 있습니다. 정책 없는 RLS는 이 경로를 모두 차단합니다.
+- 앱은 `DATABASE_URL`(`postgres` 역할, RLS 우회)로만 DB에 접근하므로 영향이 없습니다.
+- 나중에 브라우저에서 supabase-js로 직접 테이블을 읽어야 한다면, 그때 필요한 테이블에만 정책을 추가합니다
+  (`TO anon`/`TO authenticated` + 소유자 조건, UPDATE는 `USING`과 `WITH CHECK` 모두 지정).
+
+확인(SQL Editor):
 
 ```sql
--- RLS 활성화
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
-ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
-ALTER TABLE likes ENABLE ROW LEVEL SECURITY;
-
--- Users: 사용자는 본인 정보만 수정 가능
-CREATE POLICY "Users can view own profile" ON users
-  FOR SELECT USING (auth.uid() = id);
-
-CREATE POLICY "Users can update own profile" ON users
-  FOR UPDATE USING (auth.uid() = id);
-
--- Posts: 공개된 게시물은 누구나 읽기 가능
-CREATE POLICY "Public can read published posts" ON posts
-  FOR SELECT USING (published = true);
-
--- Posts: 작성자는 본인 게시물 관리 가능
-CREATE POLICY "Authors can manage own posts" ON posts
-  FOR ALL USING (auth.uid() = author_id);
-
--- Posts: 관리자는 모든 게시물 관리 가능
-CREATE POLICY "Admins can manage all posts" ON posts
-  FOR ALL USING (
-    auth.uid() IN (
-      SELECT id FROM users WHERE role = 'admin'
-    )
-  );
-
--- Comments: 누구나 댓글 읽기 가능
-CREATE POLICY "Public can read comments" ON comments
-  FOR SELECT USING (true);
-
--- Comments: 작성자는 본인 댓글 수정/삭제 가능
-CREATE POLICY "Authors can manage own comments" ON comments
-  FOR ALL USING (auth.uid() = author_id);
-
--- Likes: 누구나 좋아요 확인 가능
-CREATE POLICY "Public can read likes" ON likes
-  FOR SELECT USING (true);
-
--- Likes: 사용자는 본인 좋아요만 관리 가능
-CREATE POLICY "Users can manage own likes" ON likes
-  FOR ALL USING (auth.uid() = user_id);
-
--- Tags & PostTags: 공개 읽기
-CREATE POLICY "Public can read tags" ON tags
-  FOR SELECT USING (true);
-
-CREATE POLICY "Public can read post tags" ON post_tags
-  FOR SELECT USING (true);
+select relname, relrowsecurity
+from pg_class
+where relnamespace = 'public'::regnamespace and relkind = 'r';
 ```
 
 ## 7. 검증
@@ -181,6 +148,27 @@ bun dev
 ```
 
 http://localhost:3000 에 접속하여 블로그가 정상적으로 작동하는지 확인하세요.
+
+## 8. admin 계정 (관리 화면 로그인)
+
+관리 화면(`/admin`)은 Supabase Auth 이메일/비밀번호 로그인을 사용합니다.
+필요한 환경 변수는 `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` 두 개입니다(레거시 `NEXT_PUBLIC_SUPABASE_ANON_KEY`도 동작).
+
+1. **계정 생성**: Dashboard > Authentication > Users > **Add user** → 이메일/비밀번호 입력, **Auto Confirm User** 체크
+2. **admin 권한 부여**: SQL Editor에서 실행
+   ```sql
+   update auth.users
+   set raw_app_meta_data = raw_app_meta_data || '{"role":"admin"}'
+   where email = 'you@example.com';
+   ```
+   `app_metadata`는 service role/SQL로만 수정할 수 있어 사용자가 스스로 권한을 올릴 수 없습니다.
+   (`user_metadata`는 사용자가 수정 가능하므로 권한에 쓰지 않습니다.)
+3. **회원가입 차단**: Authentication > Sign In / Providers > **Allow new users to sign up** 끄기
+4. `/login`에서 로그인 → `/admin`으로 이동
+
+- 권한을 바꾼 뒤에는 **다시 로그인**해야 세션(JWT)에 반영됩니다.
+- 권한 회수: `raw_app_meta_data = raw_app_meta_data - 'role'`
+- admin이 아닌 계정은 로그인 직후 세션이 해제되고 403을 받습니다.
 
 ## 문제 해결
 
@@ -221,7 +209,8 @@ Error: Migration failed
 ### 동작 원리
 
 - **원본(source of truth)은 MDX 파일**(`/content/posts/*.mdx`)이며, DB는 그 미러입니다.
-- 배포(빌드) 시 `db:push`(스키마) → `db:sync`(MDX→DB) 순서로 자동 동기화됩니다.
+- 배포(빌드)는 DB에 접속하지 않습니다(`vercel.json`의 `buildCommand`는 `bun run build`만 실행). DB 없이도 배포가 깨지지 않게 하기 위함입니다.
+- 스키마 변경이나 MDX 글 추가 후에는 `bun run db:migrate` → `bun run db:sync`를 직접 실행합니다(5장 참고).
 - 동기화는 `source='mdx'` 글만 관리하므로, API로 작성한 `source='api'` 글은 보존됩니다.
 
 ### 환경 변수
@@ -238,21 +227,21 @@ BLOG_CORS_ORIGINS=*                        # '*' 또는 허용 도메인 목록
 ### 로컬에서 DB 채우기
 
 ```bash
-bun run db:push   # 스키마를 Supabase에 반영
-bun run db:sync   # MDX 글을 DB로 동기화
+bun run db:migrate # 스키마를 Supabase에 반영(마이그레이션 이력 기록)
+bun run db:sync    # MDX 글을 DB로 동기화
 bun run db:studio # (선택) DB 내용 확인
 ```
 
 ### 엔드포인트
 
-| Method | Path | 권한 | 설명 |
-| ------ | ---- | ---- | ---- |
-| GET    | `/api/posts`          | 읽기 | 발행된 글 목록(본문 제외) |
-| GET    | `/api/posts/[slug]`   | 읽기 | 단건 조회(본문 포함) |
-| GET    | `/api/tags`           | 읽기 | 태그 목록 |
-| POST   | `/api/posts`          | 쓰기 | 글 생성(`source='api'`) |
-| PUT    | `/api/posts/[slug]`   | 쓰기 | 글 수정 |
-| DELETE | `/api/posts/[slug]`   | 쓰기 | 글 삭제 |
+| Method | Path                | 권한 | 설명                      |
+| ------ | ------------------- | ---- | ------------------------- |
+| GET    | `/api/posts`        | 읽기 | 발행된 글 목록(본문 제외) |
+| GET    | `/api/posts/[slug]` | 읽기 | 단건 조회(본문 포함)      |
+| GET    | `/api/tags`         | 읽기 | 태그 목록                 |
+| POST   | `/api/posts`        | 쓰기 | 글 생성(`source='api'`)   |
+| PUT    | `/api/posts/[slug]` | 쓰기 | 글 수정                   |
+| DELETE | `/api/posts/[slug]` | 쓰기 | 글 삭제                   |
 
 ### 사용 예시
 

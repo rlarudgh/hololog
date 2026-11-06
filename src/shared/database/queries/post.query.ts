@@ -68,6 +68,24 @@ export async function listPosts(
   return rows.map((row) => toBlogPost(row as PostRow, false));
 }
 
+export interface AdminPostSummary extends BlogPost {
+  published: boolean;
+  source: 'mdx' | 'api';
+}
+
+/** 관리 화면용: 초안을 포함한 모든 글을 발행일 내림차순으로 반환한다(본문 제외). */
+export async function listAdminPosts(): Promise<AdminPostSummary[]> {
+  const rows = await db.query.posts.findMany({
+    orderBy: desc(posts.date),
+    with: { tags: { with: { tag: true } } },
+  });
+  return rows.map((row) => ({
+    ...toBlogPost(row as PostRow, false),
+    published: row.published,
+    source: row.source,
+  }));
+}
+
 /** slug로 단건 조회(본문 포함). 없으면 null. */
 export async function getPostBySlug(
   slug: string,
@@ -103,7 +121,9 @@ async function setPostTags(
 ): Promise<void> {
   await tx.delete(postTags).where(eq(postTags.postId, postId));
 
-  const uniqueNames = [...new Set(tagNames.map((t) => t.trim()).filter(Boolean))];
+  const uniqueNames = [
+    ...new Set(tagNames.map((t) => t.trim()).filter(Boolean)),
+  ];
   if (uniqueNames.length === 0) return;
 
   await tx
@@ -214,7 +234,8 @@ export async function updatePost(
       updatedAt: new Date(),
     };
     if (input.title !== undefined) updates.title = input.title;
-    if (input.description !== undefined) updates.description = input.description;
+    if (input.description !== undefined)
+      updates.description = input.description;
     if (input.content !== undefined) updates.content = input.content;
     if (input.published !== undefined) updates.published = input.published;
     if (input.date !== undefined) updates.date = parseDate(input.date);
