@@ -1,3 +1,19 @@
+# [1.4.0](https://github.com/rlarudgh/hololog/compare/v1.3.0...v1.4.0) (2026-11-06)
+
+### Bug Fixes
+
+- allow Vercel build without DATABASE_URL ([30e5658](https://github.com/rlarudgh/hololog/commit/30e5658d4025a2a6343025eee771c9c4159a9c47))
+- build error ([7077f6e](https://github.com/rlarudgh/hololog/commit/7077f6e914e9f5a2eca1e885f8517853a35c1114))
+- bump next-mdx-remote to 6.0.0 (CVE-2026-0969) and fix Turbopack ESM resolution ([076cb53](https://github.com/rlarudgh/hololog/commit/076cb532808342ab84952498340706b1f76c43ff))
+- use bun instead of pnpm in semantic-release prepare step ([a5d285d](https://github.com/rlarudgh/hololog/commit/a5d285d899f4cfc25906f1627349f759106699da))
+
+### Features
+
+- add DB-backed blog API with key auth and OpenAPI docs ([800d50d](https://github.com/rlarudgh/hololog/commit/800d50d15482c89d4c00140ce905bd0a38241e9e))
+- add Supabase admin login and post management ([e7738b8](https://github.com/rlarudgh/hololog/commit/e7738b8d7fa9f6355199cd3d84e2aa56e7191035))
+- migrate from pnpm to Bun and upgrade Next.js to 16.2.4 ([6b28e92](https://github.com/rlarudgh/hololog/commit/6b28e92477bcfca368d2c40b0ec43e20eacd9b83))
+- start merging about and resume pages ([cce2859](https://github.com/rlarudgh/hololog/commit/cce2859831af1c3255c6c002c4302fa1b84900d5))
+
 # [1.3.0](https://github.com/rlarudgh/hololog/compare/v1.2.0...v1.3.0) (2026-01-14)
 
 ### Features
