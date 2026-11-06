@@ -3,7 +3,9 @@ import { safeRedirectPath } from './redirect.util';
 
 describe('safeRedirectPath', () => {
   it('keeps internal paths', () => {
-    expect(safeRedirectPath('/admin/posts?x=1')).toBe('/admin/posts?x=1');
+    expect(safeRedirectPath('/dashboard/posts?x=1')).toBe(
+      '/dashboard/posts?x=1',
+    );
   });
 
   it.each([
@@ -15,7 +17,7 @@ describe('safeRedirectPath', () => {
     ['/\\evil.com'],
     ['javascript:alert(1)'],
   ])('falls back for %s', (next) => {
-    expect(safeRedirectPath(next)).toBe('/admin');
+    expect(safeRedirectPath(next)).toBe('/dashboard');
   });
 
   it('uses a custom fallback', () => {

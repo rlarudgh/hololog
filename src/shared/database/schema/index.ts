@@ -92,6 +92,16 @@ export const likes = pgTable('likes', {
   createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
 }).enableRLS();
 
+// URL Shortener. short_code는 original_url의 SHA-256에서 결정적으로 만들고,
+// original_url을 unique로 두어 같은 URL 재요청 시 기존 행을 재사용한다.
+export const shortUrls = pgTable('short_urls', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  shortCode: text('short_code').notNull().unique(),
+  originalUrl: text('original_url').notNull().unique(),
+  clicks: integer('clicks').default(0).notNull(),
+  createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
+}).enableRLS();
+
 export const usersRelations = relations(users, ({ many }) => ({
   posts: many(posts),
   comments: many(comments),

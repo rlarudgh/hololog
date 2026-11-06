@@ -47,7 +47,7 @@ Authorization: Bearer <YOUR_KEY>
 | `POST /api/auth/logout` | 세션 쿠키 제거                                 | 200 / 403(다른 출처)                                   |
 | `GET /api/auth/me`      | 현재 admin 정보                                | 200 / 401                                              |
 
-관리 화면은 `/admin`(비로그인 시 `/login`으로 이동)입니다.
+관리 화면은 `/dashboard`(비로그인 시 `/login`으로 이동)입니다. `/admin`은 URL Shortener 통계용 Basic 인증 페이지입니다.
 
 ## 인터랙티브 문서 (로컬 테스트)
 
@@ -200,3 +200,33 @@ bun run db:sync    # MDX 글을 DB로 동기화
 ```
 
 자세한 환경 설정은 [SUPABASE_SETUP.md](./SUPABASE_SETUP.md) 참고.
+
+## URL Shortener
+
+| 엔드포인트          | 설명                                                                                | 응답                            |
+| ------------------- | ----------------------------------------------------------------------------------- | ------------------------------- |
+| `POST /api/shorten` | `{ "originalUrl": string }`을 6자리 코드로 단축. 같은 URL은 같은 코드(SHA-256 기반) | 201 신규 / 200 기존 / 400 / 500 |
+| `GET /{shortCode}`  | 원본 URL로 리다이렉트(`Cache-Control: no-store`), 클릭 수 +1                        | 307 / 404                       |
+| `GET /api/stats`    | 전체·클릭 통계와 URL 목록. **HTTP Basic 인증**                                      | 200 / 401                       |
+| `GET /admin`        | 통계 화면. **HTTP Basic 인증**                                                      | 200 / 401                       |
+
+`POST /api/shorten` 성공 응답:
+
+```json
+{
+  "shortCode": "Vad8PW",
+  "shortUrl": "https://hololog.vercel.app/Vad8PW",
+  "originalUrl": "https://example.com"
+}
+```
+
+오류 응답은 `{ "error": { "code", "message" } }` 형식입니다.
+
+| code           | 조건                                                    |
+| -------------- | ------------------------------------------------------- |
+| `MISSING_URL`  | `originalUrl` 누락·빈 문자열·공백                       |
+| `URL_TOO_LONG` | 2048자 초과                                             |
+| `INVALID_URL`  | URL 형식이 아니거나 http/https가 아님(`javascript:` 등) |
+| `SELF_URL`     | 이 서비스 자신의 주소(요청 host와 같은 hostname)        |
+
+Basic 인증 계정은 `ADMIN_USERNAME` / `ADMIN_PASSWORD` 환경변수로 설정합니다. 둘 중 하나라도 없으면 항상 401입니다.
