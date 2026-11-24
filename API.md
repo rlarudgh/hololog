@@ -17,7 +17,7 @@
 
 ## 인증
 
-모든 요청에 API 키가 필요합니다. 없거나 틀리면 **`401 Unauthorized`** 를 반환합니다.
+**`GET /api/posts`(글 목록)는 공개**라서 키가 필요 없습니다. 그 외 모든 요청(단건 조회, 태그, 쓰기)에는 API 키가 필요하며, 없거나 틀리면 **`401 Unauthorized`** 를 반환합니다.
 
 키 전달 방법(둘 중 하나):
 
@@ -62,12 +62,23 @@ bun dev
 
 ## 엔드포인트
 
-### GET /api/posts — 글 목록
+### GET /api/posts — 글 목록 (공개, 페이지네이션)
 
-발행된 글을 발행일 내림차순으로 반환(본문 제외).
+`content/posts/*.mdx` 글을 발행일 내림차순으로 페이지 단위로 반환(본문 제외).
+**DB를 거치지 않고 MDX 파일을 바로 읽습니다.** 그래서 `main`에 push해서 배포되면 바로 반영되고, Supabase 상태와 상관없이 동작합니다.
+(API로 작성한 `source='api'` 글은 이 목록에 나오지 않습니다.)
+**API 키가 필요 없습니다.** 브라우저에서 호출하면 `BLOG_CORS_ORIGINS`에 등록된 출처만 응답을 읽을 수 있습니다.
+
+| 쿼리    | 타입 | 기본값 | 범위 | 설명                                            |
+| ------- | ---- | ------ | ---- | ----------------------------------------------- |
+| `page`  | int  | `1`    | ≥ 1  | 페이지 번호. 마지막 페이지를 넘으면 `posts: []` |
+| `limit` | int  | `10`   | 1–50 | 페이지당 글 수                                  |
+
+범위를 벗어나거나 정수가 아니면 `400`(`{ error, details }`)을 반환합니다.
+응답은 CDN에 60초 동안 캐싱됩니다(`s-maxage=60, stale-while-revalidate=300`). 새 글이 보이기까지 최대 1분쯤 걸릴 수 있습니다.
 
 ```bash
-curl -H "x-api-key: $READ_KEY" http://localhost:3000/api/posts
+curl 'https://hololog.vercel.app/api/posts?page=1&limit=10'
 ```
 
 ```json
@@ -80,9 +91,51 @@ curl -H "x-api-key: $READ_KEY" http://localhost:3000/api/posts
       "description": "...",
       "tags": ["AI", "회고"]
     }
-  ]
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 42,
+    "totalPages": 5,
+    "hasNext": true
+  }
 }
 ```
+
+> `tags`가 없는 글은 `tags` 필드 자체가 빠집니다(optional).
+
+다른 사이트(예: `https://kkh-log.pages.dev`)에서 사용:
+
+```ts
+type PostSummary = {
+  slug: string;
+  title: string;
+  date: string; // 'YYYY-MM-DD'
+  description: string;
+  tags?: string[];
+};
+
+type PostListResponse = {
+  posts: PostSummary[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+  };
+};
+
+async function fetchPosts(page = 1, limit = 10): Promise<PostListResponse> {
+  const res = await fetch(
+    `https://hololog.vercel.app/api/posts?page=${page}&limit=${limit}`,
+  );
+  if (!res.ok) throw new Error(`Failed to load posts: ${res.status}`);
+  return res.json();
+}
+```
+
+글 상세 링크는 `https://hololog.vercel.app/blog/{slug}`입니다.
 
 ### GET /api/posts/{slug} — 글 단건 (본문 포함)
 
