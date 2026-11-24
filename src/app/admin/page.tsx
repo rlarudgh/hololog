@@ -24,7 +24,7 @@ export default async function AdminPage() {
   const stats = await getShortUrlStats();
 
   return (
-    <Container className="py-12">
+    <Container size="wide" className="py-12">
       <h1 className="mb-2 text-2xl font-bold">URL Shortener 관리자</h1>
       <p className="mb-8 text-sm text-gray-600 dark:text-gray-400">
         단축 URL 목록과 사용량을 확인합니다.

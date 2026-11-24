@@ -18,7 +18,7 @@ export default async function DashboardLayout({ children }: PropsWithChildren) {
   if (!user) redirect('/login?next=/dashboard');
 
   return (
-    <Container className="py-12">
+    <Container size="wide" className="py-12">
       <div className="mb-8 flex items-center justify-between gap-4">
         <h1 className="text-2xl font-bold">관리자</h1>
         <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">

@@ -1,7 +1,13 @@
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import type { Metadata } from 'next';
+import { ROUTES } from '@/shared/configs/routes';
+import { formatPostDate } from '@/shared/utils/date';
 import { Container, Utterances } from '@/shared/ui';
-import { BlogPostingSchema, BreadcrumbSchema } from '@/shared/ui/structured-data';
+import {
+  BlogPostingSchema,
+  BreadcrumbSchema,
+} from '@/shared/ui/structured-data';
 import { getPostBySlug, getAllPosts } from '@/shared/libs/mdx';
 import { MDXRemote } from 'next-mdx-remote/rsc';
 import { useMDXComponents } from '@/mdx-components';
@@ -19,14 +25,11 @@ function UtterancesWrapper() {
   // Validate environment variable
   if (!repo || repo === 'your-username/your-repo' || repo.trim() === '') {
     console.warn('NEXT_PUBLIC_UTTERANCES_REPO is not properly configured');
-    
+
     return (
-      <div className="text-center text-gray-500 dark:text-gray-400 py-8">
-        <p>댓글 기능이 활성화되지 않았습니다.</p>
-        <p className="text-sm mt-2">
-          환경 변수 NEXT_PUBLIC_UTTERANCES_REPO를 설정해주세요.
-        </p>
-      </div>
+      <p className="py-8 text-sm text-slate-500 dark:text-slate-400">
+        댓글 기능이 활성화되지 않았습니다.
+      </p>
     );
   }
 
@@ -67,7 +70,8 @@ export async function generateMetadata({
     };
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://hololog.vercel.app';
+  const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_URL || 'https://hololog.vercel.app';
   const canonical = `${baseUrl}/blog/${slug}`;
 
   return {
@@ -103,7 +107,8 @@ export default async function BlogPostPage({ params }: PageProps) {
     notFound();
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://hololog.vercel.app';
+  const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_URL || 'https://hololog.vercel.app';
   const postUrl = `${baseUrl}/blog/${slug}`;
 
   // JSON-LD Structured Data
@@ -117,8 +122,7 @@ export default async function BlogPostPage({ params }: PageProps) {
 
   // Breadcrumb data
   const breadcrumbData = [
-    { name: 'Home', url: baseUrl },
-    { name: 'Blog', url: `${baseUrl}/blog` },
+    { name: 'Blog', url: baseUrl },
     { name: post.metadata.title, url: postUrl },
   ];
 
@@ -128,34 +132,56 @@ export default async function BlogPostPage({ params }: PageProps) {
       <BlogPostingSchema {...jsonLdData} />
       <BreadcrumbSchema items={breadcrumbData} />
 
-      <Container className="py-12">
-        <article className="max-w-none">
-          <header className="mb-8">
-            <h1 className="text-5xl font-bold mb-4">{post.metadata.title}</h1>
-            <p className="text-gray-500 dark:text-gray-400 mb-4">
-              {post.metadata.date}
-            </p>
+      <Container className="pt-10 lg:pt-20">
+        <article>
+          <header className="mb-10 border-b border-slate-200 pb-8 dark:border-slate-800">
+            <time
+              dateTime={post.metadata.date}
+              className="font-mono text-xs text-slate-500 dark:text-slate-400"
+            >
+              {formatPostDate(post.metadata.date)}
+            </time>
+            <h1 className="mb-4 mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-slate-50">
+              {post.metadata.title}
+            </h1>
+            {post.metadata.description && (
+              <p className="text-lg text-slate-600 dark:text-slate-400">
+                {post.metadata.description}
+              </p>
+            )}
             {post.metadata.tags && post.metadata.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-6">
+              <ul className="mt-4 flex flex-wrap gap-2" aria-label="태그">
                 {post.metadata.tags.map((tag) => (
-                  <span
+                  <li
                     key={tag}
-                    className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm rounded-full"
+                    className="rounded-md border border-slate-200 px-2 py-0.5 text-xs font-medium text-slate-600 dark:border-slate-700 dark:text-slate-400"
                   >
-                    {tag}
-                  </span>
+                    #{tag}
+                  </li>
                 ))}
-              </div>
+              </ul>
             )}
           </header>
 
-          <MDXRemoteComponent source={post.content} />
+          <div className="text-slate-700 dark:text-slate-300">
+            <MDXRemoteComponent source={post.content} />
+          </div>
 
-          {/* 댓글 섹션 */}
-          <section className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
-            <h2 className="text-2xl font-bold mb-6">댓글</h2>
+          <section className="mt-16 border-t border-slate-200 pt-8 dark:border-slate-800">
+            <h2 className="mb-6 font-mono text-xs uppercase tracking-widest text-slate-500 dark:text-slate-400">
+              Comments
+            </h2>
             <UtterancesWrapper />
           </section>
+
+          <div className="mt-12">
+            <Link
+              href={ROUTES.HOME}
+              className="inline-flex items-center font-mono text-xs text-slate-500 transition-colors hover:text-accent dark:text-slate-400"
+            >
+              ← 목록으로 돌아가기
+            </Link>
+          </div>
         </article>
       </Container>
     </>

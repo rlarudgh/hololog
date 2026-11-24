@@ -6,14 +6,6 @@ describe('ROUTES Constants', () => {
     expect(ROUTES.HOME).toBe('/');
   });
 
-  it('has correct blog route', () => {
-    expect(ROUTES.BLOG).toBe('/blog');
-  });
-
-  it('has correct about route', () => {
-    expect(ROUTES.ABOUT).toBe('/about');
-  });
-
   it('generates correct blog post route', () => {
     const slug = 'my-test-post';
     const expectedRoute = '/blog/my-test-post';

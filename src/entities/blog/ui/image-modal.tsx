@@ -38,7 +38,7 @@ export function ImageModal({ src, alt, isOpen, onClose }: ImageModalProps) {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-70 cursor-pointer transition-opacity duration-300"
+      className="fixed inset-0 z-[9999] flex cursor-pointer items-center justify-center bg-slate-950/80 transition-opacity duration-300"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -49,7 +49,7 @@ export function ImageModal({ src, alt, isOpen, onClose }: ImageModalProps) {
         <img
           src={src}
           alt={alt}
-          className="max-w-full max-h-full object-contain shadow-2xl transition-all duration-300 transform"
+          className="max-h-full max-w-full rounded-lg object-contain"
           onClick={(e) => e.stopPropagation()}
           style={{
             maxHeight: 'calc(100vh - 4rem)',
@@ -62,7 +62,7 @@ export function ImageModal({ src, alt, isOpen, onClose }: ImageModalProps) {
             e.stopPropagation();
             onClose();
           }}
-          className="absolute top-4 right-4 w-10 h-10 bg-white bg-opacity-90 hover:bg-opacity-100 text-gray-800 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 shadow-lg"
+          className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white/90 text-slate-800 transition-colors hover:bg-white"
           aria-label="이미지 닫기"
           style={{ zIndex: 10000 }}
         >

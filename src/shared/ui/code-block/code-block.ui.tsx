@@ -34,9 +34,9 @@ export function CodeBlock({ children, className }: CodeBlockProps) {
         language={language}
         style={oneDark}
         customStyle={{
-          backgroundColor: '#0a0c10',
-          border: '1px solid #1c2128',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.3)',
+          // slate-900 / slate-800: 사이트의 무채색 팔레트와 맞춘다.
+          backgroundColor: '#0f172a',
+          border: '1px solid #1e293b',
           borderRadius: '0.5rem',
           padding: '1rem',
           margin: 0,
@@ -44,7 +44,7 @@ export function CodeBlock({ children, className }: CodeBlockProps) {
         }}
         showLineNumbers={code.split('\n').length > 5}
         lineNumberStyle={{
-          color: '#8b949e',
+          color: '#64748b',
           marginRight: '1rem',
           userSelect: 'none',
         }}
@@ -55,8 +55,10 @@ export function CodeBlock({ children, className }: CodeBlockProps) {
       {/* Copy button */}
       <button
         onClick={handleCopy}
-        className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-xs px-2 py-1 rounded flex items-center gap-1 bg-gray-700 hover:bg-gray-600 text-gray-100"
+        type="button"
+        className="absolute right-3 top-3 flex items-center gap-1 rounded border border-slate-700 bg-slate-800 px-2 py-1 font-mono text-xs text-slate-300 opacity-0 transition-opacity duration-200 hover:text-slate-50 focus-visible:opacity-100 group-hover:opacity-100"
         title="Copy code"
+        aria-label={copied ? '복사됨' : '코드 복사'}
       >
         {copied ? (
           <>
