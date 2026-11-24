@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/rlarudgh/hololog/compare/v1.5.0...v1.6.0) (2026-11-24)
+
+### Features
+
+- redesign blog to match portfolio (kkh-log) ([1c81884](https://github.com/rlarudgh/hololog/commit/1c818843fa4a08631a0ed2f920336dcbfad1dbf0))
+- serve public paginated post list from MDX ([e434d6c](https://github.com/rlarudgh/hololog/commit/e434d6cc2d0bd635bc55d78a90454f97be4888c4))
+
 # [1.5.0](https://github.com/rlarudgh/hololog/compare/v1.4.0...v1.5.0) (2026-11-06)
 
 ### Features
