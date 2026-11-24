@@ -26,21 +26,24 @@ describe('PostCard Component', () => {
     expect(
       screen.getByText('This is a test blog post description'),
     ).toBeInTheDocument();
-    expect(screen.getByText('2024-01-01')).toBeInTheDocument();
+    expect(screen.getByText('2024.01.01')).toHaveAttribute(
+      'datetime',
+      '2024-01-01',
+    );
   });
 
   it('renders tags when available', () => {
     render(<PostCard post={mockPost} />);
 
-    expect(screen.getByText('test')).toBeInTheDocument();
-    expect(screen.getByText('blog')).toBeInTheDocument();
-    expect(screen.getByText('nextjs')).toBeInTheDocument();
+    expect(screen.getByText('#test')).toBeInTheDocument();
+    expect(screen.getByText('#blog')).toBeInTheDocument();
+    expect(screen.getByText('#nextjs')).toBeInTheDocument();
   });
 
   it('does not render tags section when no tags', () => {
     render(<PostCard post={mockPostWithoutTags} />);
 
-    expect(screen.queryByText('test')).not.toBeInTheDocument();
+    expect(screen.queryByText('#test')).not.toBeInTheDocument();
     // Should not have any tag elements
     expect(screen.queryByRole('list')).not.toBeInTheDocument();
   });

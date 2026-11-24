@@ -131,12 +131,7 @@ describe('ImageModal Component', () => {
     render(<ImageModal {...mockProps} />);
 
     const image = screen.getByAltText('Test image description');
-    expect(image).toHaveClass(
-      'max-w-full',
-      'max-h-full',
-      'object-contain',
-      'shadow-2xl',
-    );
+    expect(image).toHaveClass('max-w-full', 'max-h-full', 'object-contain');
   });
 
   it('applies correct styles to the close button', () => {
@@ -146,8 +141,8 @@ describe('ImageModal Component', () => {
     expect(closeButton).toHaveClass(
       'w-10',
       'h-10',
-      'bg-white',
-      'text-gray-800',
+      'bg-white/90',
+      'text-slate-800',
       'rounded-full',
     );
   });

@@ -20,7 +20,7 @@ describe('MDX Components', () => {
 
     const heading = screen.getByRole('heading', { level: 1 });
     expect(heading).toHaveTextContent('Test Heading');
-    expect(heading).toHaveClass('text-4xl', 'font-bold', 'mb-6');
+    expect(heading).toHaveClass('text-2xl', 'font-bold', 'mt-12');
   });
 
   /**
@@ -32,7 +32,7 @@ describe('MDX Components', () => {
 
     const heading = screen.getByRole('heading', { level: 2 });
     expect(heading).toHaveTextContent('Test Subheading');
-    expect(heading).toHaveClass('text-3xl', 'font-bold', 'mb-4', 'mt-6');
+    expect(heading).toHaveClass('text-xl', 'font-bold', 'mt-12');
   });
 
   /**
@@ -43,12 +43,7 @@ describe('MDX Components', () => {
     render(<P>Test paragraph</P>);
 
     const paragraph = screen.getByText('Test paragraph');
-    expect(paragraph).toHaveClass(
-      'mb-4',
-      'leading-relaxed',
-      'text-gray-800',
-      'dark:text-gray-200',
-    );
+    expect(paragraph).toHaveClass('my-5', 'leading-8');
   });
 
   /**
@@ -60,12 +55,10 @@ describe('MDX Components', () => {
 
     const code = screen.getByText('inline code');
     expect(code).toHaveClass(
-      'bg-gray-100',
-      'dark:bg-gray-800',
+      'bg-slate-100',
+      'dark:bg-slate-800',
       'px-1.5',
-      'py-0.5',
       'rounded',
-      'text-sm',
       'font-mono',
     );
   });
@@ -121,7 +114,7 @@ describe('MDX Components', () => {
     );
 
     const list = screen.getByRole('list');
-    expect(list).toHaveClass('list-disc', 'list-inside', 'mb-4', 'space-y-2');
+    expect(list).toHaveClass('list-disc', 'pl-6', 'my-5', 'space-y-2');
 
     expect(screen.getByText('First item')).toBeInTheDocument();
     expect(screen.getByText('Second item')).toBeInTheDocument();
@@ -138,28 +131,33 @@ describe('MDX Components', () => {
 
     const blockquote = screen.getByText('Test quote');
     expect(blockquote).toHaveClass(
-      'border-l-4',
-      'border-gray-300',
+      'border-l-2',
+      'border-slate-300',
       'pl-4',
-      'italic',
-      'my-4',
+      'my-6',
     );
   });
 
   /**
    * Test anchor link rendering with hover effects
    */
-  it('renders links with proper styling', () => {
+  it('renders internal links in the same tab', () => {
     const A = components.a as FC<ComponentPropsWithoutRef<'a'>>;
     render(<A href="/test">Test Link</A>);
 
     const link = screen.getByRole('link');
     expect(link).toHaveTextContent('Test Link');
     expect(link).toHaveAttribute('href', '/test');
-    expect(link).toHaveClass(
-      'text-blue-600',
-      'hover:text-blue-800',
-      'underline',
-    );
+    expect(link).toHaveClass('text-accent', 'underline');
+    expect(link).not.toHaveAttribute('target');
+  });
+
+  it('opens external links in a new tab safely', () => {
+    const A = components.a as FC<ComponentPropsWithoutRef<'a'>>;
+    render(<A href="https://example.com">External</A>);
+
+    const link = screen.getByRole('link');
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer');
   });
 });

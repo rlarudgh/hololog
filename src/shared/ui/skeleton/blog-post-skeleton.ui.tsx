@@ -1,16 +1,15 @@
+/** 글 목록 한 행(PostCard)과 같은 모양의 로딩 자리표시자 */
 export function BlogPostSkeletonItem() {
   return (
-    <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-6 animate-pulse">
-      <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-4"></div>
-      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-3"></div>
+    <div
+      aria-hidden="true"
+      className="grid animate-pulse gap-x-6 gap-y-2 border-b border-slate-200 py-6 sm:grid-cols-[7rem_1fr] dark:border-slate-800"
+    >
+      <div className="mt-2 h-3 w-20 rounded bg-slate-100 dark:bg-slate-800" />
       <div className="space-y-2">
-        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
-        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
-        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-4/6"></div>
-      </div>
-      <div className="flex gap-2 mt-4">
-        <div className="h-6 w-16 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
-        <div className="h-6 w-16 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+        <div className="h-5 w-3/4 rounded bg-slate-100 dark:bg-slate-800" />
+        <div className="h-4 w-full rounded bg-slate-100 dark:bg-slate-800" />
+        <div className="h-4 w-5/6 rounded bg-slate-100 dark:bg-slate-800" />
       </div>
     </div>
   );

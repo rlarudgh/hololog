@@ -6,145 +6,105 @@ import { useBlogSearch } from '@/shared/hooks';
 import { BlogPostSkeletonItem } from '@/shared/ui';
 import type { BlogPost } from '@/shared/types/blog-type';
 
-/**
- * Props for BlogList component
- */
 interface IBlogListProps {
-  /** Initial posts data passed from Server Component */
+  /** Server Component에서 넘겨받은 전체 글 */
   initialPosts: BlogPost[];
 }
 
 /**
- * Client Component for interactive blog list with search
- *
- * This component handles:
- * - User interactions (search input, filtering)
- * - Client-side state management
- * - Dynamic UI updates
- *
- * Separated from Server Component to:
- * - Keep server benefits (SEO, performance)
- * - Enable client interactivity where needed
- * - Minimize client JS bundle (only this component is client-side)
- *
- * @param props - Component props
- * @returns Interactive blog list with search functionality
+ * 검색이 가능한 글 목록(Client Component).
+ * 데이터는 서버에서 받고, 검색(300ms 디바운스)만 클라이언트에서 처리한다.
  */
 export function BlogList({ initialPosts }: IBlogListProps) {
   const {
     searchQuery,
     handleSearchQueryChange,
     filteredPosts,
-    isSearchVisible,
-    toggleSearchVisibility,
     clearSearch,
     isSearching,
   } = useBlogSearch(initialPosts);
 
-  // Memoize skeleton components to prevent unnecessary re-renders during search
-  const skeletonComponents = useMemo(() => {
-    return Array.from({ length: 3 }).map((_, index) => (
-      <BlogPostSkeletonItem key={`skeleton-${index}`} />
-    ));
-  }, []);
+  const skeletonComponents = useMemo(
+    () =>
+      Array.from({ length: 3 }).map((_, index) => (
+        <BlogPostSkeletonItem key={`skeleton-${index}`} />
+      )),
+    [],
+  );
 
-  // Memoize post components to prevent unnecessary re-renders
-  const postComponents = useMemo(() => {
-    return filteredPosts.map((post) => (
-      <PostCard key={post.slug} post={post} />
-    ));
-  }, [filteredPosts]);
+  const postComponents = useMemo(
+    () => filteredPosts.map((post) => <PostCard key={post.slug} post={post} />),
+    [filteredPosts],
+  );
 
   return (
     <>
-      {/* Search UI */}
-      <div className="relative w-full sm:w-auto mb-8">
-        {isSearchVisible && (
+      <div className="mb-6 flex items-center justify-between gap-4">
+        <div className="relative w-full max-w-xs">
+          <label htmlFor="blog-search" className="sr-only">
+            글 검색
+          </label>
           <input
-            type="text"
-            placeholder="Search blogs..."
+            id="blog-search"
+            type="search"
+            placeholder="검색"
             value={searchQuery}
             onChange={handleSearchQueryChange}
-            className="w-full sm:w-64 px-4 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white transition-all"
-            autoFocus
-            aria-label="Search blog posts"
+            className="w-full border-b border-slate-200 bg-transparent py-2 pr-8 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:outline-none dark:border-slate-800 dark:text-slate-50 dark:focus:border-slate-50 [&::-webkit-search-cancel-button]:hidden"
           />
-        )}
-        <button
-          onClick={toggleSearchVisibility}
-          className={`${
-            isSearchVisible
-              ? 'absolute right-3 top-1/2 transform -translate-y-1/2'
-              : ''
-          } text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors`}
-          aria-label={isSearchVisible ? 'Hide search' : 'Show search'}
-          aria-expanded={isSearchVisible}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-        </button>
-
-        {/* Clear button when searching */}
-        {searchQuery && isSearchVisible && (
-          <button
-            onClick={clearSearch}
-            className="absolute right-12 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-            aria-label="Clear search"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={clearSearch}
+              aria-label="검색어 지우기"
+              className="absolute right-0 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-900 dark:hover:text-slate-50"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        )}
+              <svg
+                aria-hidden="true"
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          )}
+        </div>
+        <p
+          className="shrink-0 font-mono text-xs text-slate-500 dark:text-slate-400"
+          aria-live="polite"
+        >
+          {filteredPosts.length} posts
+        </p>
       </div>
 
-      {/* Posts list */}
-      <div className="space-y-8">
+      <div className="border-t border-slate-200 dark:border-slate-800">
         {isSearching ? (
-          // Show skeleton cards while debouncing search
           skeletonComponents
         ) : filteredPosts.length === 0 ? (
-          // Empty state
-          <div className="text-center py-12">
-            <p className="text-gray-500 dark:text-gray-400 text-lg mb-4">
-              {searchQuery
-                ? `No posts found matching "${searchQuery}"`
-                : 'No posts available'}
-            </p>
-            {searchQuery && (
-              <button
-                onClick={clearSearch}
-                className="px-4 py-2 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors"
-              >
-                Clear search
-              </button>
+          <div className="border-b border-slate-200 py-10 text-sm text-slate-500 dark:border-slate-800 dark:text-slate-400">
+            {searchQuery ? (
+              <>
+                &lsquo;{searchQuery}&rsquo;에 맞는 글이 없습니다.{' '}
+                <button
+                  type="button"
+                  onClick={clearSearch}
+                  className="text-slate-900 underline underline-offset-4 hover:text-accent dark:text-slate-50"
+                >
+                  검색 초기화
+                </button>
+              </>
+            ) : (
+              '아직 발행된 글이 없습니다.'
             )}
           </div>
         ) : (
-          // Posts list
           postComponents
         )}
       </div>

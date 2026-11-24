@@ -1,68 +1,81 @@
 @import 'tailwindcss';
 
-:root {
-  --foreground: #171717;
-  --background: #ffffff;
+/* 다크 모드는 <html class="dark">로 전환한다(테마 토글 + 시스템 설정). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* 디자인 토큰: 포트폴리오(kkh-log)와 동일한 단일 포인트 컬러(blue) + slate 무채색 */
+@theme {
+  --color-accent: var(--color-blue-700);
+  --color-accent-strong: var(--color-blue-800);
+  --color-accent-soft: var(--color-blue-50);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground: #ededed;
-    --background: #0a0a0a;
-  }
+.dark {
+  --color-accent: var(--color-blue-400);
+  --color-accent-strong: var(--color-blue-300);
+  --color-accent-soft: color-mix(
+    in oklab,
+    var(--color-blue-400) 12%,
+    transparent
+  );
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
   font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
-    Arial, sans-serif;
+    'Pretendard Variable',
+    Pretendard,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-  text-decoration: none;
+::selection {
+  background-color: var(--color-blue-100);
+  color: var(--color-slate-900);
 }
 
+.dark ::selection {
+  background-color: var(--color-blue-900);
+  color: var(--color-slate-50);
+}
+
+/* base 레이어에 두어 유틸리티(outline-none 등)로 덮어쓸 수 있게 한다. */
 @layer base {
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    @apply font-bold;
-  }
-
-  h1 {
-    @apply text-4xl mb-4;
-  }
-
-  h2 {
-    @apply text-3xl mb-3;
-  }
-
-  h3 {
-    @apply text-2xl mb-2;
-  }
-
-  p {
-    @apply mb-4 leading-relaxed;
-  }
-
-  a {
-    @apply text-blue-600 hover:text-blue-800 underline;
-  }
-
-  code {
-    @apply bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-sm;
-  }
-
-  pre {
-    @apply bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto mb-4;
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
   }
 
   .syntax-highlighter-wrapper pre {
     @apply bg-transparent p-0 m-0;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 4.5rem;
+}
+
+@media (min-width: 64rem) {
+  html {
+    scroll-padding-top: 2.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+    transition-duration: 0.01ms;
   }
 }

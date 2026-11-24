@@ -11,34 +11,45 @@ const ClickableImage = lazy(() =>
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
     h1: ({ children }) => (
-      <h1 className="text-4xl font-bold mb-6 mt-8">{children}</h1>
+      <h1 className="mb-4 mt-12 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl dark:text-slate-50">
+        {children}
+      </h1>
     ),
     h2: ({ children }) => (
-      <h2 className="text-3xl font-bold mb-4 mt-6">{children}</h2>
+      <h2 className="mb-4 mt-12 text-xl font-bold tracking-tight text-slate-900 sm:text-2xl dark:text-slate-50">
+        {children}
+      </h2>
     ),
     h3: ({ children }) => (
-      <h3 className="text-2xl font-bold mb-3 mt-4">{children}</h3>
-    ),
-    p: ({ children }) => (
-      <p className="mb-4 leading-relaxed text-gray-800 dark:text-gray-200">
+      <h3 className="mb-3 mt-8 text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-50">
         {children}
-      </p>
+      </h3>
     ),
-    a: ({ href, children }) => (
-      <a
-        href={href}
-        className="text-blue-600 hover:text-blue-800 underline"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
+    p: ({ children }) => <p className="my-5 leading-8">{children}</p>,
+    a: ({ href, children }) => {
+      // 외부 링크만 새 탭으로 연다(본문 내 앵커/내부 링크는 같은 탭).
+      const isExternal = /^https?:\/\//.test(href ?? '');
+      return (
+        <a
+          href={href}
+          className="text-accent underline decoration-slate-300 underline-offset-4 transition-colors hover:decoration-accent dark:decoration-slate-600"
+          {...(isExternal && { target: '_blank', rel: 'noopener noreferrer' })}
+        >
+          {children}
+        </a>
+      );
+    },
+    strong: ({ children }) => (
+      <strong className="font-semibold text-slate-900 dark:text-slate-50">
         {children}
-      </a>
+      </strong>
     ),
+    hr: () => <hr className="my-12 border-slate-200 dark:border-slate-800" />,
     code: ({ children, className, ...props }) => {
       // If it's inline code (no className), render as inline
       if (!className) {
         return (
-          <code className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono">
+          <code className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[0.875em] text-slate-800 dark:bg-slate-800 dark:text-slate-200">
             {children}
           </code>
         );
@@ -62,19 +73,23 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       }
       // Fallback for simple pre blocks
       return (
-        <pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto mb-4">
+        <pre className="my-6 overflow-x-auto rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-800 dark:bg-slate-900">
           {children}
         </pre>
       );
     },
     ul: ({ children }) => (
-      <ul className="list-disc list-inside mb-4 space-y-2">{children}</ul>
+      <ul className="my-5 list-disc space-y-2 pl-6 marker:text-slate-400">
+        {children}
+      </ul>
     ),
     ol: ({ children }) => (
-      <ol className="list-decimal list-inside mb-4 space-y-2">{children}</ol>
+      <ol className="my-5 list-decimal space-y-2 pl-6 marker:text-slate-400">
+        {children}
+      </ol>
     ),
     blockquote: ({ children }) => (
-      <blockquote className="border-l-4 border-gray-300 pl-4 italic my-4">
+      <blockquote className="my-6 border-l-2 border-slate-300 pl-4 text-slate-600 dark:border-slate-700 dark:text-slate-400">
         {children}
       </blockquote>
     ),
@@ -85,7 +100,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
           <img
             src={src || ''}
             alt={alt || 'Blog image'}
-            className={`w-full rounded-lg mb-4 ${className || ''}`}
+            className={`my-6 w-full rounded-lg border border-slate-200 dark:border-slate-800 ${className || ''}`}
             width={width}
             height={height}
           />
@@ -94,7 +109,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
         <ClickableImage
           src={src || ''}
           alt={alt || 'Blog image'}
-          className={`w-full rounded-lg mb-4 ${className || ''}`}
+          className={`my-6 w-full rounded-lg border border-slate-200 dark:border-slate-800 ${className || ''}`}
           width={width}
           height={height}
         />

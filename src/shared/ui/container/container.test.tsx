@@ -19,7 +19,18 @@ describe('Container Component', () => {
       </Container>,
     );
     const container = screen.getByText('Content').parentElement;
-    expect(container).toHaveClass('max-w-4xl', 'mx-auto', 'px-4');
+    expect(container).toHaveClass('max-w-3xl', 'mx-auto', 'px-5');
+  });
+
+  it('applies the wide size', () => {
+    render(
+      <Container size="wide">
+        <div>Content</div>
+      </Container>,
+    );
+    const container = screen.getByText('Content').parentElement;
+    expect(container).toHaveClass('max-w-5xl');
+    expect(container).not.toHaveClass('max-w-3xl');
   });
 
   it('applies custom className', () => {
@@ -30,6 +41,6 @@ describe('Container Component', () => {
     );
     const container = screen.getByText('Content').parentElement;
     expect(container).toHaveClass('custom-container');
-    expect(container).toHaveClass('max-w-4xl'); // Still has default classes
+    expect(container).toHaveClass('max-w-3xl'); // Still has default classes
   });
 });

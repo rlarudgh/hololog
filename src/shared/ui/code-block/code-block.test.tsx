@@ -2,11 +2,13 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { CodeBlock } from './code-block.ui';
 
-// Mock clipboard API
-Object.assign(navigator, {
-  clipboard: {
-    writeText: vi.fn(),
-  },
+// Mock clipboard API.
+// user-event가 같은 워커에서 navigator.clipboard를 getter로 정의해 두면 대입(Object.assign)이
+// 실패하므로, defineProperty로 덮어쓴다.
+Object.defineProperty(navigator, 'clipboard', {
+  value: { writeText: vi.fn() },
+  configurable: true,
+  writable: true,
 });
 
 describe('CodeBlock', () => {
